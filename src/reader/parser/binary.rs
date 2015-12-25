@@ -1,7 +1,7 @@
 use std::io::Read;
 use error::{Result, Error, ErrorKind};
-use reader::FbxEvent;
-use super::{CommonState, PropertyValue};
+use reader::{FbxEvent, PropertyValue};
+use super::CommonState;
 
 #[derive(Debug, Clone)]
 pub struct BinaryParser {
