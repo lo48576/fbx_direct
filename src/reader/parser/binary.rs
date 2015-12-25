@@ -1,7 +1,7 @@
 use std::io::Read;
 use error::{Result, Error, ErrorKind};
 use reader::FbxEvent;
-use super::CommonState;
+use super::{CommonState, PropertyValue};
 
 #[derive(Debug, Clone)]
 pub struct BinaryParser {
@@ -39,8 +39,17 @@ impl BinaryParser {
         }
 
         // Read properties.
+        let mut properties = Vec::<PropertyValue>::with_capacity(node_record_header.num_properties as usize);
+        for _ in 0..node_record_header.num_properties {
+            let prop = try!(self.read_property(reader, common));
+            properties.push(prop);
+        }
 
         Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for Binary FBX format is not implemented yet".to_string())))
+    }
+
+    fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<PropertyValue> {
+        Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for FBX node property is not implemented yet".to_string())))
     }
 }
 
