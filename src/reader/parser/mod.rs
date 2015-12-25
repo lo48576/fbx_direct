@@ -1,6 +1,5 @@
 use std::io::Read;
-use error::{Error, ErrorKind};
-use ::Result;
+use error::{Result, Error, ErrorKind};
 use reader::FbxEvent;
 
 #[derive(Clone, Copy, PartialEq, Eq)]

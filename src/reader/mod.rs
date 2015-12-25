@@ -1,5 +1,5 @@
 use std::io::Read;
-use ::Result;
+use error::Result;
 
 mod parser;
 

@@ -1,6 +1,8 @@
 use std::io;
 use std::string;
 
+pub type Result<T> = ::std::result::Result<T, Error>;
+
 #[derive(Debug)]
 pub struct Error {
     pos: u64,
