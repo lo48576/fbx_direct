@@ -4,8 +4,10 @@ use std::io::Read;
 use error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, FbxFormatType};
 use self::binary::BinaryParser;
+use self::ascii::AsciiParser;
 
 mod macros;
+mod ascii;
 mod binary;
 
 #[derive(Debug, Clone)]
@@ -21,11 +23,6 @@ enum ParserState {
 #[derive(Debug, Clone)]
 struct CommonState {
     pos: u64,
-}
-
-#[derive(Debug, Clone)]
-struct AsciiParser {
-    buffer: String,
 }
 
 pub struct Parser {
@@ -101,17 +98,5 @@ impl Parser {
             self.state = ParserState::Ascii(AsciiParser::new(buffer));
             Ok(FbxEvent::StartFbx(FbxFormatType::Text))
         }
-    }
-}
-
-impl AsciiParser {
-    pub fn new(buffer: String) -> Self {
-        AsciiParser {
-            buffer: buffer,
-        }
-    }
-
-    pub fn next<R: Read>(&mut self, _reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
-        Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for ASCII FBX format is not implemented yet".to_string())))
     }
 }
