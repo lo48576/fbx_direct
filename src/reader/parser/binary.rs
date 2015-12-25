@@ -6,17 +6,23 @@ use super::CommonState;
 #[derive(Debug, Clone)]
 pub struct BinaryParser {
     version: u32,
+    end_offset_stack: Vec<u32>,
 }
 
 impl BinaryParser {
     pub fn new(version: u32) -> Self {
         BinaryParser {
             version: version,
+            end_offset_stack: vec![],
         }
     }
 
     pub fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
+        // Read a node record header.
         let node_record_header = try!(NodeRecordHeader::load(reader, &mut common.pos));
+        self.end_offset_stack.push(node_record_header.end_offset);
+
+        // Read properties.
         Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for Binary FBX format is not implemented yet".to_string())))
     }
 }
