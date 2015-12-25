@@ -28,7 +28,7 @@ impl BinaryParser {
         }
 
         // Read a node record header.
-        let node_record_header = try!(NodeRecordHeader::load(reader, &mut common.pos));
+        let node_record_header = try!(NodeRecordHeader::read(reader, &mut common.pos));
         if node_record_header.is_null_record() {
             // End of a node.
             return if let Some(expected_pos) = self.end_offset_stack.pop() {
@@ -143,7 +143,7 @@ struct NodeRecordHeader {
 }
 
 impl NodeRecordHeader {
-    pub fn load<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
+    pub fn read<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
         let end_offset = try_read_le_u32!(*pos, reader);
         let num_properties = try_read_le_u32!(*pos, reader);
         let property_list_len = try_read_le_u32!(*pos, reader);
