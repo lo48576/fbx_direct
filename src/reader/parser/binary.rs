@@ -18,6 +18,15 @@ impl BinaryParser {
     }
 
     pub fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
+        // Check if the previously read node ends here.
+        if let Some(&end_pos_top) = self.end_offset_stack.last() {
+            if end_pos_top as u64 == common.pos {
+                // Reached the end of previously read node.
+                self.end_offset_stack.pop();
+                return Ok(FbxEvent::EndNode);
+            }
+        }
+
         // Read a node record header.
         let node_record_header = try!(NodeRecordHeader::load(reader, &mut common.pos));
         if node_record_header.is_null_record() {
