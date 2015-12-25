@@ -66,7 +66,71 @@ impl BinaryParser {
     }
 
     fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<PropertyValue> {
-        Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for FBX node property is not implemented yet".to_string())))
+        let type_code = try_read_le_u8!(common.pos, reader);
+        // type code must be ASCII.
+        let type_code = if type_code > 0x80 {
+            return Err(Error::new(common.pos-1, ErrorKind::DataError(format!("Expected property type code (ASCII) but got {:#x}", type_code))));
+        } else {
+            type_code as char
+        };
+        let value = match type_code {
+            // 1 bit boolean (1: true, 0: false) encoded as the LSB of a 1 byte value.
+            'C' => {
+                let val = try_read_le_u8!(common.pos, reader);
+                // It seems 'T' (0x54) is used as `false`, 'T' (0x59) is used as `true`.
+                if (val != 'T' as u8) && (val != 'Y' as u8) {
+                    // Should this treated as error?
+                    // (I don't know whether other characters than 'T' and 'Y' are allowed...)
+                    warn!("Expected 'T' or 'Y' for representaton of boolean property value, but got {:#x}", val);
+                }
+                // Check LSB.
+                PropertyValue::Bool(val & 1 == 1)
+            },
+            // 2 byte signed integer.
+            'Y' => {
+                PropertyValue::I16(try_read_le_i16!(common.pos, reader))
+            },
+            // 4 byte signed integer.
+            'I' => {
+                PropertyValue::I32(try_read_le_i32!(common.pos, reader))
+            },
+            // 4 byte single-precision IEEE 754 floating-point number.
+            'F' => {
+                PropertyValue::F32(try_read_le_f32!(common.pos, reader))
+            },
+            // 8 byte double-precision IEEE 754 floating-point number.
+            'D' => {
+                PropertyValue::F64(try_read_le_f64!(common.pos, reader))
+            },
+            // 8 byte signed integer.
+            'L' => {
+                PropertyValue::I64(try_read_le_i64!(common.pos, reader))
+            },
+            // Array types
+            'f'|'d'|'l'|'i'|'b' => {
+                return Err(Error::new(
+                        common.pos,
+                        ErrorKind::Unimplemented("Parser for array type of property value is not implemented yet".to_string())));
+            },
+            // String
+            'S' => {
+                let length = try_read_le_u32!(common.pos, reader);
+                PropertyValue::String(try_read_fixstr!(common.pos, reader, length))
+            },
+            // Raw binary data
+            'R' => {
+                let length = try_read_le_u32!(common.pos, reader);
+                PropertyValue::Binary(try_read_exact!(common.pos, reader, length))
+            },
+            _ => {
+                return Err(Error::new(
+                        common.pos,
+                        ErrorKind::DataError(format!(
+                                "Unsupported type code appears in node property: type_code={}({:#x})",
+                                type_code, type_code as u8))));
+            }
+        };
+        Ok(value)
     }
 }
 
