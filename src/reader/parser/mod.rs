@@ -1,5 +1,3 @@
-extern crate byteorder;
-
 use std::io::Read;
 use error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, FbxFormatType};
