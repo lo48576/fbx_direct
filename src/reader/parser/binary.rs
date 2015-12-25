@@ -33,4 +33,12 @@ impl NodeRecordHeader {
     pub fn load<R: Read>(_reader: &mut R, pos: &mut u64) -> Result<Self> {
         Err(Error::new(*pos, ErrorKind::Unimplemented("Parser for NodeRecordHeader is not implemented yet".to_string())))
     }
+
+    /// Check whether the header indicates there are no more children.
+    pub fn is_null_record(&self) -> bool {
+        self.end_offset == 0
+            && self.num_properties == 0
+            && self.property_list_len == 0
+            && self.name_len == 0
+    }
 }
