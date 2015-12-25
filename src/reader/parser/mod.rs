@@ -28,6 +28,7 @@ impl Parser {
             mode: ParserMode::Magic,
         }
     }
+
     pub fn next<R: Read>(&mut self, reader: &mut R) -> Result<FbxEvent> {
         match self.mode {
             ParserMode::Magic => self.magic_next(reader),
@@ -38,9 +39,11 @@ impl Parser {
     pub fn magic_next<R: Read>(&mut self, _reader: &mut R) -> Result<FbxEvent> {
         Err(Error::new(self.pos, ErrorKind::Unimplemented("Parser for magic binary is not implemented yet".to_string())))
     }
+
     pub fn binary_next<R: Read>(&mut self, _reader: &mut R) -> Result<FbxEvent> {
         Err(Error::new(self.pos, ErrorKind::Unimplemented("Parser for Binary FBX format is not implemented yet".to_string())))
     }
+
     pub fn ascii_next<R: Read>(&mut self, _reader: &mut R) -> Result<FbxEvent> {
         Err(Error::new(self.pos, ErrorKind::Unimplemented("Parser for ASCII FBX format is not implemented yet".to_string())))
     }

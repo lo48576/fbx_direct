@@ -32,6 +32,7 @@ impl<R: Read> EventReader<R> {
             parser: parser::Parser::new(),
         }
     }
+
     pub fn next(&mut self) -> Result<FbxEvent> {
         self.parser.next(&mut self.source)
     }

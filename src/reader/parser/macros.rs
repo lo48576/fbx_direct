@@ -10,7 +10,7 @@ macro_rules! try_with_pos {
 }
 
 macro_rules! try_read_le_u32 {
-    ($pos: expr, $reader:expr) => ({
+    ($pos:expr, $reader:expr) => ({
         use self::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.by_ref().read_u32::<byteorder::LittleEndian>());
         $pos += 4;
