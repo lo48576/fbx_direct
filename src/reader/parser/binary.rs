@@ -36,7 +36,9 @@ impl BinaryParser {
                     Ok(FbxEvent::EndNode)
                 } else {
                     // Data is collapsed (the node doesn't end at expected position).
-                    Err(Error::new(common.pos, ErrorKind::DataError("Node does not end at expected position".to_string())))
+                    Err(Error::new(
+                            common.pos,
+                            ErrorKind::DataError(format!("Node does not end at expected position (expected {}, now at {})", expected_pos, common.pos))))
                 }
             } else {
                 // Data is collapsed (an extra node end marker found).
