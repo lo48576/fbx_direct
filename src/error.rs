@@ -20,6 +20,7 @@ impl Error {
 pub enum ErrorKind {
     FromUtf8Error(string::FromUtf8Error),
     Io(io::Error),
+    UnexpectedEof,
     Unimplemented(String),
 }
 
