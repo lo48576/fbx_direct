@@ -30,8 +30,17 @@ struct NodeRecordHeader {
 }
 
 impl NodeRecordHeader {
-    pub fn load<R: Read>(_reader: &mut R, pos: &mut u64) -> Result<Self> {
-        Err(Error::new(*pos, ErrorKind::Unimplemented("Parser for NodeRecordHeader is not implemented yet".to_string())))
+    pub fn load<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
+        let end_offset = try_read_le_u32!(*pos, reader);
+        let num_properties = try_read_le_u32!(*pos, reader);
+        let property_list_len = try_read_le_u32!(*pos, reader);
+        let name_len = try_read_le_u8!(*pos, reader);
+        Ok(NodeRecordHeader {
+            end_offset: end_offset,
+            num_properties: num_properties,
+            property_list_len: property_list_len,
+            name_len: name_len,
+        })
     }
 
     /// Check whether the header indicates there are no more children.
