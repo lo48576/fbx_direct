@@ -1,0 +1,6 @@
+[package]
+name = "fbx_direct"
+version = "0.1.0"
+authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
+
+[dependencies]
