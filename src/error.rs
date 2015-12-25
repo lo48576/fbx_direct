@@ -25,6 +25,7 @@ pub enum ErrorKind {
     FromUtf8Error(string::FromUtf8Error),
     InvalidMagic,
     Io(io::Error),
+    DataError(String),
     UnexpectedEof,
     Unimplemented(String),
 }
