@@ -48,7 +48,10 @@ impl BinaryParser {
             properties.push(prop);
         }
 
-        Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for Binary FBX format is not implemented yet".to_string())))
+        Ok(FbxEvent::StartNode {
+            name: name,
+            properties: properties,
+        })
     }
 
     fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<PropertyValue> {

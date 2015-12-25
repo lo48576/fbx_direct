@@ -15,6 +15,7 @@ pub enum FbxEvent {
     EndFbx,
     StartNode {
         name: String,
+        properties: Vec<PropertyValue>,
     },
     EndNode,
     Comment(String),
