@@ -38,6 +38,9 @@ impl BinaryParser {
             self.end_offset_stack.push(node_record_header.end_offset);
         }
 
+        // Read a node name.
+        let name = try_read_fixstr!(common.pos, reader, node_record_header.name_len);
+
         // Read properties.
         let mut properties = Vec::<PropertyValue>::with_capacity(node_record_header.num_properties as usize);
         for _ in 0..node_record_header.num_properties {
