@@ -24,7 +24,7 @@ impl BinaryParser {
             // End of a node.
             return if let Some(expected_pos) = self.end_offset_stack.pop() {
                 if common.pos == expected_pos as u64 {
-                    Ok(FbxEvent::EndFbx)
+                    Ok(FbxEvent::EndNode)
                 } else {
                     // Data is collapsed (the node doesn't end at expected position).
                     Err(Error::new(common.pos, ErrorKind::DataError("Node does not end at expected position".to_string())))
