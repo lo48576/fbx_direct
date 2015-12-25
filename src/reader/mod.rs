@@ -1,6 +1,7 @@
 use std::io::Read;
-use error::{Error, ErrorKind};
 use ::Result;
+
+mod parser;
 
 #[derive(Debug, Clone, Copy)]
 pub enum FbxFormatType {
@@ -21,16 +22,18 @@ pub enum FbxEvent {
 
 pub struct EventReader<R: Read> {
     source: R,
+    parser: parser::Parser,
 }
 
 impl<R: Read> EventReader<R> {
     pub fn new(source: R) -> Self {
         EventReader {
             source: source,
+            parser: parser::Parser::new(),
         }
     }
     pub fn next(&mut self) -> Result<FbxEvent> {
-        Err(Error::new(0, ErrorKind::Unimplemented("EventReader is not implemented yet".to_string())))
+        self.parser.next(&mut self.source)
     }
 }
 
