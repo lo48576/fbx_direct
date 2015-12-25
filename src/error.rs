@@ -21,6 +21,7 @@ impl Error {
 #[derive(Debug)]
 pub enum ErrorKind {
     FromUtf8Error(string::FromUtf8Error),
+    InvalidMagic,
     Io(io::Error),
     UnexpectedEof,
     Unimplemented(String),
