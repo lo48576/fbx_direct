@@ -20,9 +20,26 @@ impl BinaryParser {
     pub fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
         // Read a node record header.
         let node_record_header = try!(NodeRecordHeader::load(reader, &mut common.pos));
-        self.end_offset_stack.push(node_record_header.end_offset);
+        if node_record_header.is_null_record() {
+            // End of a node.
+            return if let Some(expected_pos) = self.end_offset_stack.pop() {
+                if common.pos == expected_pos as u64 {
+                    Ok(FbxEvent::EndFbx)
+                } else {
+                    // Data is collapsed (the node doesn't end at expected position).
+                    Err(Error::new(common.pos, ErrorKind::DataError("Node does not end at expected position".to_string())))
+                }
+            } else {
+                // Data is collapsed (an extra node end marker found).
+                Err(Error::new(common.pos, ErrorKind::DataError("An extra node end marker found".to_string())))
+            };
+        } else {
+            // Start of a node.
+            self.end_offset_stack.push(node_record_header.end_offset);
+        }
 
         // Read properties.
+
         Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for Binary FBX format is not implemented yet".to_string())))
     }
 }
