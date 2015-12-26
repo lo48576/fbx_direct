@@ -4,6 +4,7 @@ extern crate byteorder;
 
 use std::io;
 use std::string;
+use std::fmt;
 
 /// A specialized `std::result::Result` type for FBX parsing.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -23,6 +24,34 @@ impl Error {
         Error {
             pos: pos,
             kind: kind.into(),
+        }
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.kind {
+            ErrorKind::FromUtf8Error(ref err) => write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err),
+            ErrorKind::InvalidMagic => write!(f, "Invalid magic header at pos={}: Non-FBX or corrupted data?", self.pos),
+            ErrorKind::Io(ref err) => write!(f, "I/O error at pos={}: {}", self.pos, err),
+            ErrorKind::DataError(ref err) => write!(f, "Invalid data at pos={}: {}", self.pos, err),
+            ErrorKind::UnexpectedValue(ref err) => write!(f, "Got an unexpected value at pos={}: {}", self.pos, err),
+            ErrorKind::UnexpectedEof => write!(f, "Unexpected EOF at pos={}", self.pos),
+            ErrorKind::Unimplemented(ref err) => write!(f, "Unimplemented feature: {}", err),
+        }
+    }
+}
+
+impl ::std::error::Error for Error {
+    fn description(&self) -> &str {
+        match self.kind {
+            ErrorKind::FromUtf8Error(ref err) => err.description(),
+            ErrorKind::InvalidMagic => "Got an invalid magic header",
+            ErrorKind::Io(ref err) => err.description(),
+            ErrorKind::DataError(_) => "Got an invalid data",
+            ErrorKind::UnexpectedValue(_) => "Invalid value in FBX data",
+            ErrorKind::UnexpectedEof => "Unexpected EOF",
+            ErrorKind::Unimplemented(_) => "Attempt to use unimplemented feature",
         }
     }
 }
