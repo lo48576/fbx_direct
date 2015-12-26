@@ -118,7 +118,7 @@ impl Parser {
                 buffer = String::new();
             }
             self.state = ParserState::Ascii(AsciiParser::new(buffer));
-            Ok(FbxEvent::StartFbx(FbxFormatType::Text))
+            Ok(FbxEvent::StartFbx(FbxFormatType::Ascii))
         }
     }
 }

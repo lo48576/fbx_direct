@@ -11,15 +11,15 @@ mod parser;
 /// Format of FBX data
 #[derive(Debug, Clone, Copy)]
 pub enum FbxFormatType {
-    /// Binary FBX, with version (for example, 7400 for FBX 7.4).
+    /// Binary FBX, with version (for example, `7400` for FBX 7.4).
     Binary(u32),
     /// ASCII FBX.
-    Text,
+    Ascii,
 }
 
 /// A node of an FBX input stream.
 ///
-/// Items of this enum are emitted by `reader::EventReader`.
+/// Items of this enum are emitted by [`reader::EventReader`](struct.EventReader.html).
 #[derive(Debug, Clone)]
 pub enum FbxEvent {
     /// Denotes start of FBX data.
@@ -28,8 +28,7 @@ pub enum FbxEvent {
     StartFbx(FbxFormatType),
     /// Denotes end of FBX data.
     ///
-    /// NOTE: Current implementation of `reader::parser::BinaryParser` does not read to end of the
-    ///       FBX stream.
+    /// NOTE: Current implementation of Binary FBX parser does not read to the last byte of the FBX stream.
     EndFbx,
     /// Denotes beginning of a node.
     StartNode {
@@ -82,8 +81,9 @@ impl <R: Read> IntoIterator for EventReader<R> {
 
 /// An iterator over FBX events created from some type implementing `Read`.
 ///
-/// When the next event is `reader::error::Error` or `reader::FbxEvent::EndFbx`, then it will be
-/// returned by the iterator once, and then it will stop producing events.
+/// When the next event is [`reader::error::Error`](struct.Error.html) or
+/// [`reader::FbxEvent::EndFbx`](enum.FbxEvent.html) then it will be returned
+/// by the iterator once, and then it will stop producing events.
 pub struct Events<R: Read> {
     reader: EventReader<R>,
     finished: bool,

@@ -20,7 +20,8 @@ pub struct Error {
 }
 
 impl Error {
-    /// Constructs `Error` with position and objects which can be converted to `ErrorKind`.
+    /// Constructs `Error` with position and objects which can be converted to
+    /// [`ErrorKind`](enum.ErrorKind.html).
     pub fn new<K: Into<ErrorKind>>(pos: u64, kind: K) -> Self {
         Error {
             pos: pos,
@@ -70,7 +71,7 @@ pub enum ErrorKind {
     DataError(String),
     /// Got an unexpected value, and cannot continue parsing.
     ///
-    /// This is specialization of `DataError`.
+    /// This is specialization of [`DataError`](#variant.DataError).
     UnexpectedValue(String),
     /// Reached unexpected EOF.
     UnexpectedEof,
