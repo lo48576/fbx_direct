@@ -14,7 +14,7 @@ pub enum FbxFormatType {
     /// Binary FBX, with version (for example, 7400 for FBX 7.4).
     Binary(u32),
     /// ASCII FBX.
-    Text,
+    Ascii,
 }
 
 /// A node of an FBX input stream.
