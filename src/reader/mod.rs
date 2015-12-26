@@ -1,6 +1,7 @@
 use std::io::Read;
-use error::Result;
+use self::error::Result;
 
+mod error;
 mod parser;
 
 #[derive(Debug, Clone, Copy)]

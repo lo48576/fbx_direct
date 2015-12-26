@@ -2,7 +2,7 @@ extern crate byteorder;
 extern crate flate2;
 
 use std::io::Read;
-use error::{Result, Error, ErrorKind};
+use reader::error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, PropertyValue};
 use super::CommonState;
 

@@ -6,7 +6,7 @@ macro_rules! try_with_pos {
     ($pos:expr, $expr:expr) => (match $expr {
         ::std::result::Result::Ok(val) => val,
         ::std::result::Result::Err(err) => {
-            return ::std::result::Result::Err($crate::error::Error::new($pos, err));
+            return ::std::result::Result::Err($crate::reader::error::Error::new($pos, err));
         },
     })
 }

@@ -1,5 +1,5 @@
 use std::io::Read;
-use error::{Result, Error, ErrorKind};
+use reader::error::{Result, Error, ErrorKind};
 use reader::FbxEvent;
 use super::CommonState;
 
