@@ -15,7 +15,16 @@ fn indent(size: usize) -> String {
 fn main() {
     env_logger::init().unwrap();
 
-    let file = BufReader::new(File::open("sample.fbx").unwrap());
+    let filename = match std::env::args().nth(1) {
+        Some(f) => f,
+        None => {
+            use std::io::Write;
+            writeln!(&mut std::io::stderr(), "Usage: cargo run --example=simple <FBX_filename>").unwrap();
+            std::process::exit(1);
+        },
+    };
+
+    let file = BufReader::new(File::open(filename).unwrap());
 
     let parser = EventReader::new(file);
     let mut depth = 0;
