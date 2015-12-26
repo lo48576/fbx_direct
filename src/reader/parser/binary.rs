@@ -109,9 +109,7 @@ impl BinaryParser {
             // Array types
             'f'|'d'|'l'|'i'|'b' => {
                 let array_header = try!(PropertyArrayHeader::read(reader, &mut common.pos));
-                return Err(Error::new(
-                        common.pos,
-                        ErrorKind::Unimplemented("Parser for array type of property value is not implemented yet".to_string())));
+                try!(self.read_property_value_array(reader, common, type_code, &array_header))
             },
             // String
             'S' => {
@@ -132,6 +130,37 @@ impl BinaryParser {
             }
         };
         Ok(value)
+    }
+
+    /// Read property value of array type from given stream which maybe compressed.
+    fn read_property_value_array<R: Read>(&mut self,
+                                          reader: &mut R, common: &mut CommonState,
+                                          type_code: char, array_header: &PropertyArrayHeader) -> Result<PropertyValue> {
+        match array_header.encoding {
+            // 0; raw
+            0 => {
+                self.read_property_value_array_from_plain_stream(reader, common, type_code, array_header)
+            },
+            // 1: zlib compressed data
+            1 => {
+                Err(Error::new(
+                        common.pos,
+                        ErrorKind::Unimplemented("Parser for zlib compressed property array is not implemented yet".to_string())))
+            },
+            // Unknown.
+            e => {
+                Err(Error::new(
+                        common.pos,
+                        ErrorKind::DataError(format!("Unsupported property array encoding, got {:#x}", e))))
+            }
+        }
+    }
+
+    fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, common: &mut CommonState, type_code: char,
+                                                            array_header: &PropertyArrayHeader) -> Result<PropertyValue> {
+        Err(Error::new(
+                common.pos,
+                ErrorKind::Unimplemented("Parser for array type of property value is not implemented yet".to_string())))
     }
 }
 
