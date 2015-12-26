@@ -26,6 +26,7 @@ pub enum ErrorKind {
     InvalidMagic,
     Io(io::Error),
     DataError(String),
+    UnexpectedValue(String),
     UnexpectedEof,
     Unimplemented(String),
 }

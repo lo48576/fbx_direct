@@ -137,7 +137,7 @@ impl BinaryParser {
             _ => {
                 return Err(Error::new(
                         common.pos,
-                        ErrorKind::DataError(format!(
+                        ErrorKind::UnexpectedValue(format!(
                                 "Unsupported type code appears in node property: type_code={}({:#x})",
                                 type_code, type_code as u8))));
             }
@@ -167,7 +167,7 @@ impl BinaryParser {
             e => {
                 Err(Error::new(
                         common.pos,
-                        ErrorKind::DataError(format!("Unsupported property array encoding, got {:#x}", e))))
+                        ErrorKind::UnexpectedValue(format!("Unsupported property array encoding, got {:#x}", e))))
             }
         }
     }
