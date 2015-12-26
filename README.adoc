@@ -1,0 +1,16 @@
+= fbx_direct, a low-level FBX parser for Rust
+
+fbx_direct is an FBX library for Rust programming language.
+It is heavily inspired by link:https://en.wikipedia.org/wiki/StAX[Java Streaming API for XML (StAX)] and link:https://github.com/netvl/xml-rs[xml-rs].
+
+This library currently contains only FBX event reader like xml-rs.
+
+== TODO
+
+.reader
+- [x] Binary FBX parser
+- [ ] ASCII FBX parser
+
+.writer
+- [ ] Binary FBX writer
+- [ ] ASCII FBX writer

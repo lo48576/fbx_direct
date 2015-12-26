@@ -1,14 +1,18 @@
+//! Contains implementation of ASCII FBX parser.
+
 use std::io::Read;
 use reader::error::{Result, Error, ErrorKind};
 use reader::FbxEvent;
 use super::CommonState;
 
+/// A parser for ASCII FBX.
 #[derive(Debug, Clone)]
 pub struct AsciiParser {
     buffer: String,
 }
 
 impl AsciiParser {
+    /// Constructs ASCII FBX parser with initial state of internal buffer.
     pub fn new(buffer: String) -> Self {
         AsciiParser {
             buffer: buffer,
