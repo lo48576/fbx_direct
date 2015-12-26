@@ -42,6 +42,20 @@ impl fmt::Display for Error {
     }
 }
 
+impl ::std::error::Error for Error {
+    fn description(&self) -> &str {
+        match self.kind {
+            ErrorKind::FromUtf8Error(ref err) => err.description(),
+            ErrorKind::InvalidMagic => "Got an invalid magic header",
+            ErrorKind::Io(ref err) => err.description(),
+            ErrorKind::DataError(_) => "Got an invalid data",
+            ErrorKind::UnexpectedValue(_) => "Invalid value in FBX data",
+            ErrorKind::UnexpectedEof => "Unexpected EOF",
+            ErrorKind::Unimplemented(_) => "Attempt to use unimplemented feature",
+        }
+    }
+}
+
 /// Error type.
 #[derive(Debug)]
 pub enum ErrorKind {
