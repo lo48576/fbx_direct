@@ -6,6 +6,7 @@ authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 [dependencies]
 log = "*"
 byteorder = "*"
+flate2 = "*"
 
 [dev-dependencies]
 env_logger = "*"
