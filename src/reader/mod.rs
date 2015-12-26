@@ -89,6 +89,14 @@ pub struct Events<R: Read> {
     finished: bool,
 }
 
+impl<R: Read> Events<R> {
+    /// Returns internal `EventReader`.
+    #[allow(dead_code)]
+    fn into_inner(self) -> EventReader<R> {
+        self.reader
+    }
+}
+
 impl<R: Read> Iterator for Events<R> {
     type Item = Result<FbxEvent>;
 
