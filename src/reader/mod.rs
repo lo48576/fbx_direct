@@ -3,6 +3,8 @@
 use std::io::Read;
 use self::error::Result;
 
+pub use self::error::{Error, ErrorKind};
+
 mod error;
 mod parser;
 

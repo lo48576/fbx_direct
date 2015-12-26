@@ -9,6 +9,8 @@
 #[macro_use]
 extern crate log;
 
+pub use reader::EventReader;
+
 pub mod reader;
 
 #[test]
