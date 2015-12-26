@@ -21,10 +21,6 @@ fn main() {
     let mut depth = 0;
     for e in parser {
         match e {
-            Err(e) => {
-                println!("Error: {:?}", e);
-                break;
-            },
             Ok(ref e@FbxEvent::StartNode { .. }) => {
                 println!("{}{:?}", indent(depth), e);
                 depth += 1;
@@ -33,9 +29,13 @@ fn main() {
                 depth -= 1;
                 println!("{}{:?}", indent(depth), e);
             },
-            _ => {
+            Ok(e) => {
                 println!("{}{:?}", indent(depth), e);
-            }
+            },
+            Err(e) => {
+                println!("Error: {:?}", e);
+                break;
+            },
         }
     }
 }
