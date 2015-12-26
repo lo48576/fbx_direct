@@ -44,8 +44,18 @@ impl BinaryParser {
                             ErrorKind::DataError(format!("Node does not end at expected position (expected {}, now at {})", expected_pos, common.pos))))
                 }
             } else {
-                // Data is collapsed (an extra node end marker found).
-                Err(Error::new(common.pos, ErrorKind::DataError("An extra node end marker found".to_string())))
+                // Reached end of all nodes.
+                // (Extra NULL-record header is end marker of implicit root node.)
+                // Footer with unknown contents follows.
+                // TODO: Read footer.
+                //       Files exported by official products or SDK have padding and their file
+                //       sizes are multiple of 16, but some files exported by third-party apps
+                //       (such as blender) does not.
+                //       So it may be difficult to check if the footer is correct or wrong.
+                // NOTE: There is the only thing known, the last 16 bytes of the data always seem
+                //       to be `[0xf8, 0x5a, 0x8c, 0x6a, 0xde, 0xf5, 0xd9, 0x7e, 0xec, 0xe9, 0x0c,
+                //       0xe3, 0x75, 0x8f, 0x29, 0x0b]`.
+                Ok(FbxEvent::EndFbx)
             };
         } else {
             // Start of a node.
