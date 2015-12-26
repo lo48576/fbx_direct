@@ -108,6 +108,7 @@ impl BinaryParser {
             },
             // Array types
             'f'|'d'|'l'|'i'|'b' => {
+                let array_header = try!(PropertyArrayHeader::read(reader, &mut common.pos));
                 return Err(Error::new(
                         common.pos,
                         ErrorKind::Unimplemented("Parser for array type of property value is not implemented yet".to_string())));
@@ -162,5 +163,25 @@ impl NodeRecordHeader {
             && self.num_properties == 0
             && self.property_list_len == 0
             && self.name_len == 0
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct PropertyArrayHeader {
+    array_length: u32,
+    encoding: u32,
+    compressed_length: u32,
+}
+
+impl PropertyArrayHeader {
+    pub fn read<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
+        let array_length = try_read_le_u32!(*pos, reader);
+        let encoding = try_read_le_u32!(*pos, reader);
+        let compressed_length = try_read_le_u32!(*pos, reader);
+        Ok(PropertyArrayHeader {
+            array_length: array_length,
+            encoding: encoding,
+            compressed_length: compressed_length,
+        })
     }
 }
