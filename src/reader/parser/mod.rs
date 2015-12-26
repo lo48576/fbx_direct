@@ -26,6 +26,7 @@ enum ParserState {
 struct CommonState {
     /// Position of last successfully read byte.
     pos: u64,
+    final_result: Option<Result<FbxEvent>>,
 }
 
 /// A simple wrapper around magic, binary and ascii FBX parser.
@@ -40,6 +41,7 @@ impl Parser {
         Parser {
             common: CommonState {
                 pos: 0,
+                final_result: None,
             },
             state: ParserState::Magic,
         }
@@ -47,11 +49,24 @@ impl Parser {
 
     /// Get next `FbxEvent`.
     pub fn next<R: Read>(&mut self, reader: &mut R) -> Result<FbxEvent> {
-        match self.state {
+        // If parsing has been finished, return the last result.
+        if let Some(ref result) = self.common.final_result {
+            return result.clone();
+        }
+        // Parsing is not finished, call sub parser.
+        let result = match self.state {
             ParserState::Magic => self.magic_next(reader),
             ParserState::Binary(ref mut parser) => parser.next(reader, &mut self.common),
             ParserState::Ascii(ref mut parser) => parser.next(reader, &mut self.common),
+        };
+        // If parsing is finished, set `final_result`.
+        match result {
+            Ok(FbxEvent::EndFbx) | Err(_) => {
+                self.common.final_result = Some(result.clone());
+            },
+            _ => {}
         }
+        result
     }
 
     /// Read magic binary and update parser state if success.
