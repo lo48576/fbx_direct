@@ -4,9 +4,9 @@ version = "0.1.0"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
 [dependencies]
-log = "*"
-byteorder = "*"
-flate2 = "*"
+log = "^0.3.4"
+byteorder = "^0.4.2"
+flate2 = "^0.2.11"
 
 [dev-dependencies]
-env_logger = "*"
+env_logger = "^0.3.2"
