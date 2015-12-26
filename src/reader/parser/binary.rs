@@ -1,3 +1,6 @@
+extern crate byteorder;
+extern crate flate2;
+
 use std::io::Read;
 use error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, PropertyValue};
@@ -139,13 +142,16 @@ impl BinaryParser {
         match array_header.encoding {
             // 0; raw
             0 => {
-                self.read_property_value_array_from_plain_stream(reader, common, type_code, array_header)
+                let (val, byte_size) = try!(self.read_property_value_array_from_plain_stream(reader, common.pos, type_code, array_header.array_length));
+                common.pos += byte_size;
+                Ok(val)
             },
             // 1: zlib compressed data
             1 => {
-                Err(Error::new(
-                        common.pos,
-                        ErrorKind::Unimplemented("Parser for zlib compressed property array is not implemented yet".to_string())))
+                let mut decoded_stream = flate2::read::ZlibDecoder::new(reader.by_ref().take(array_header.compressed_length as u64));
+                let (val, _) = try!(self.read_property_value_array_from_plain_stream(&mut decoded_stream, common.pos, type_code, array_header.array_length));
+                common.pos += array_header.compressed_length as u64;
+                Ok(val)
             },
             // Unknown.
             e => {
@@ -156,11 +162,57 @@ impl BinaryParser {
         }
     }
 
-    fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, common: &mut CommonState, type_code: char,
-                                                            array_header: &PropertyArrayHeader) -> Result<PropertyValue> {
-        Err(Error::new(
-                common.pos,
-                ErrorKind::Unimplemented("Parser for array type of property value is not implemented yet".to_string())))
+    fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, abs_pos: u64, type_code: char,
+                                                            num_elements: u32) -> Result<(PropertyValue, u64)> {
+        use self::byteorder::{ReadBytesExt, LittleEndian};
+        Ok(match type_code {
+            // Array of 4 byte single-precision IEEE 754 floating-point number.
+            'f' => {
+                let mut data = Vec::<f32>::with_capacity(num_elements as usize);
+                for _ in 0..num_elements {
+                    data.push(try_with_pos!(abs_pos, reader.read_f32::<LittleEndian>()));
+                }
+                (PropertyValue::VecF32(data), num_elements as u64 * 4)
+            },
+            // Array of 8 byte double-precision IEEE 754 floating-point number.
+            'd' => {
+                let mut data = Vec::<f64>::with_capacity(num_elements as usize);
+                for _ in 0..num_elements {
+                    data.push(try_with_pos!(abs_pos, reader.read_f64::<LittleEndian>()));
+                }
+                (PropertyValue::VecF64(data), num_elements as u64 * 8)
+            },
+            // Array of 8 byte signed integer.
+            'l' => {
+                let mut data = Vec::<i64>::with_capacity(num_elements as usize);
+                for _ in 0..num_elements {
+                    data.push(try_with_pos!(abs_pos, reader.read_i64::<LittleEndian>()));
+                }
+                (PropertyValue::VecI64(data), num_elements as u64 * 8)
+            },
+            // Array of 4 byte signed integer.
+            'i' => {
+                let mut data = Vec::<i32>::with_capacity(num_elements as usize);
+                for _ in 0..num_elements {
+                    data.push(try_with_pos!(abs_pos, reader.read_i32::<LittleEndian>()));
+                }
+                (PropertyValue::VecI32(data), num_elements as u64 * 4)
+            },
+            // Array of 1 byte booleans (always 0 or 1?).
+            'b' => {
+                let mut data = Vec::<bool>::with_capacity(num_elements as usize);
+                for _ in 0..num_elements {
+                    // Check LSB.
+                    data.push(try_with_pos!(abs_pos, reader.read_u8()) & 1 == 1);
+                }
+                (PropertyValue::VecBool(data), num_elements as u64)
+            },
+            _ => {
+                // Unreachable because `read_property()` gives only 'f' , 'd', 'l', 'i', or 'b' to
+                // `read_property_value_array()`.
+                unreachable!();
+            }
+        })
     }
 }
 
