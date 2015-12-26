@@ -1,3 +1,5 @@
+//! Contains implementations of FBX parsers.
+
 use std::io::Read;
 use reader::error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, FbxFormatType};
@@ -8,27 +10,32 @@ mod macros;
 mod ascii;
 mod binary;
 
+/// Parser state, with sub parser if necessary.
 #[derive(Debug, Clone)]
 enum ParserState {
-    /// Reading magic binary (i.e. the first line)
+    /// Reading magic binary (i.e. the first line).
     Magic,
-    /// Reading binary FBX
+    /// Reading binary FBX.
     Binary(BinaryParser),
-    /// Reading ASCII FBX
+    /// Reading ASCII FBX.
     Ascii(AsciiParser),
 }
 
+/// Common state among all sub parsers.
 #[derive(Debug, Clone)]
 struct CommonState {
+    /// Position of last successfully read byte.
     pos: u64,
 }
 
+/// A simple wrapper around magic, binary and ascii FBX parser.
 pub struct Parser {
     common: CommonState,
     state: ParserState,
 }
 
 impl Parser {
+    /// Constructs a parser.
     pub fn new() -> Self {
         Parser {
             common: CommonState {
@@ -38,6 +45,7 @@ impl Parser {
         }
     }
 
+    /// Get next `FbxEvent`.
     pub fn next<R: Read>(&mut self, reader: &mut R) -> Result<FbxEvent> {
         match self.state {
             ParserState::Magic => self.magic_next(reader),
@@ -46,6 +54,7 @@ impl Parser {
         }
     }
 
+    /// Read magic binary and update parser state if success.
     fn magic_next<R: Read>(&mut self, reader: &mut R) -> Result<FbxEvent> {
         // 20 is the length of `b"Kaydara FBX Binary  "`.
         let mut first_line_bytes = Vec::with_capacity(20);

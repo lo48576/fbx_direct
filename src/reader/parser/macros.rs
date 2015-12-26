@@ -1,7 +1,15 @@
+//! Contains macros used by parsers.
+
 #![macro_use]
 
 extern crate byteorder;
 
+/// Unwrap result if `Ok`, returns `reader::Error` if `Err`.
+///
+/// `try!` converts argument into error type of caller's `Result` return type,
+/// but `try_with_pos` converts argument into `reader::error::ErrorKind`.
+/// `reader:error::Error` requires position information, so almost all error types cannot be
+/// directly converted to `reader::Error` and `try!` cannot be used.
 macro_rules! try_with_pos {
     ($pos:expr, $expr:expr) => (match $expr {
         ::std::result::Result::Ok(val) => val,

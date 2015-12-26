@@ -1,3 +1,5 @@
+//! Contains implementation of Binary FBX parser.
+
 extern crate byteorder;
 extern crate flate2;
 
@@ -6,6 +8,7 @@ use reader::error::{Result, Error, ErrorKind};
 use reader::{FbxEvent, PropertyValue};
 use super::CommonState;
 
+/// A parser for Binary FBX.
 #[derive(Debug, Clone)]
 pub struct BinaryParser {
     version: u32,
@@ -13,6 +16,7 @@ pub struct BinaryParser {
 }
 
 impl BinaryParser {
+    /// Constructs Binary FBX parser with FBX version (which is placed after magic binary).
     pub fn new(version: u32) -> Self {
         BinaryParser {
             version: version,
@@ -78,6 +82,7 @@ impl BinaryParser {
         })
     }
 
+    /// Read a node property value.
     fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<PropertyValue> {
         let type_code = try_read_le_u8!(common.pos, reader);
         // type code must be ASCII.
@@ -145,7 +150,7 @@ impl BinaryParser {
         Ok(value)
     }
 
-    /// Read property value of array type from given stream which maybe compressed.
+    /// Read a property value of array type from given stream which maybe compressed.
     fn read_property_value_array<R: Read>(&mut self,
                                           reader: &mut R, common: &mut CommonState,
                                           type_code: char, array_header: &PropertyArrayHeader) -> Result<PropertyValue> {
@@ -172,6 +177,7 @@ impl BinaryParser {
         }
     }
 
+    /// Read a property value of array type from plain (uncompressed) stream.
     fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, abs_pos: u64, type_code: char,
                                                             num_elements: u32) -> Result<(PropertyValue, u64)> {
         use self::byteorder::{ReadBytesExt, LittleEndian};
@@ -226,15 +232,21 @@ impl BinaryParser {
     }
 }
 
+/// A header of a node.
 #[derive(Debug, Copy, Clone)]
 struct NodeRecordHeader {
+    /// Position of the end of the node.
     end_offset: u32,
+    /// Number of the properties the node has.
     num_properties: u32,
+    /// Byte size of properties of the node in the FBX stream.
     property_list_len: u32,
+    /// Byte size of the node name.
     name_len: u8,
 }
 
 impl NodeRecordHeader {
+    /// Constructs `NodeRecordHeader` from the given stream.
     pub fn read<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
         let end_offset = try_read_le_u32!(*pos, reader);
         let num_properties = try_read_le_u32!(*pos, reader);
@@ -257,14 +269,19 @@ impl NodeRecordHeader {
     }
 }
 
+/// A header of a property of array type.
 #[derive(Debug, Copy, Clone)]
 pub struct PropertyArrayHeader {
+    /// Number of values in the array, *NOT byte size*.
     array_length: u32,
+    /// Denotes whether data in stream is plain, or what algorithm it is compressed by.
     encoding: u32,
+    /// Byte size of the compressed array value in the stream.
     compressed_length: u32,
 }
 
 impl PropertyArrayHeader {
+    /// Constructs `PropertyArrayHeader` from the given stream.
     pub fn read<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
         let array_length = try_read_le_u32!(*pos, reader);
         let encoding = try_read_le_u32!(*pos, reader);
