@@ -14,3 +14,6 @@ This library currently contains only FBX event reader like xml-rs.
 .writer
 - [ ] Binary FBX writer
 - [ ] ASCII FBX writer
+
+== License
+This software is released under the MIT License, see LICENSE.txt.
