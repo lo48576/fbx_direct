@@ -3,6 +3,8 @@ name = "fbx_direct"
 version = "0.1.1"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
+license = "MIT"
+
 [dependencies]
 log = "^0.3.4"
 byteorder = "^0.4.2"
