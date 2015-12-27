@@ -3,7 +3,17 @@ name = "fbx_direct"
 version = "0.1.1"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
+homepage = "https://github.com/l1048576/fbx_direct"
+repository = "https://github.com/l1048576/fbx_direct"
+readme = "README.adoc"
+keywords = ["fbx", "graphics", "3d", "model"]
 license = "MIT"
+description = "Low-level FBX library"
+
+include = [
+	"**/*.rs",
+	"Cargo.toml",
+]
 
 [dependencies]
 log = "^0.3.4"
