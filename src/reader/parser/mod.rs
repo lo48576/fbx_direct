@@ -2,7 +2,7 @@
 
 use std::io::Read;
 use reader::error::{Result, Error, ErrorKind};
-use reader::{FbxEvent, FbxFormatType};
+use reader::{FbxEvent, FbxFormatType, ParserConfig};
 use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
 
@@ -31,14 +31,16 @@ struct CommonState {
 
 /// A simple wrapper around magic, binary and ascii FBX parser.
 pub struct Parser {
+    config: ParserConfig,
     common: CommonState,
     state: ParserState,
 }
 
 impl Parser {
     /// Constructs a parser.
-    pub fn new() -> Self {
+    pub fn new(config: ParserConfig) -> Self {
         Parser {
+            config: config,
             common: CommonState {
                 pos: 0,
                 final_result: None,
@@ -53,12 +55,28 @@ impl Parser {
         if let Some(ref result) = self.common.final_result {
             return result.clone();
         }
-        // Parsing is not finished, call sub parser.
-        let result = match self.state {
-            ParserState::Magic => self.magic_next(reader),
-            ParserState::Binary(ref mut parser) => parser.next(reader, &mut self.common),
-            ParserState::Ascii(ref mut parser) => parser.next(reader, &mut self.common),
-        };
+        let result;
+        loop {
+            // Parsing is not finished, call sub parser.
+            let r = match self.state {
+                ParserState::Magic => self.magic_next(reader),
+                ParserState::Binary(ref mut parser) => parser.next(reader, &mut self.common),
+                ParserState::Ascii(ref mut parser) => parser.next(reader, &mut self.common),
+            };
+            // Break only when `ignore_comments` option is disabled or got non-comment event.
+            if self.config.ignore_comments {
+                match r {
+                    Ok(FbxEvent::Comment(_)) => {},
+                    r => {
+                        result = r;
+                        break;
+                    }
+                }
+            } else {
+                result = r;
+                break;
+            }
+        }
         // If parsing is finished, set `final_result`.
         match result {
             Ok(FbxEvent::EndFbx) | Err(_) => {
