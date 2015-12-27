@@ -56,7 +56,15 @@ impl<R: Read> EventReader<R> {
     pub fn new(source: R) -> Self {
         EventReader {
             source: source,
-            parser: parser::Parser::new(),
+            parser: parser::Parser::new(ParserConfig::new()),
+        }
+    }
+
+    /// Creates a new reader with provided configuration, consuming the given stream.
+    pub fn new_with_config(source: R, config: ParserConfig) -> Self {
+        EventReader {
+            source: source,
+            parser: parser::Parser::new(config),
         }
     }
 
@@ -111,6 +119,37 @@ impl<R: Read> Iterator for Events<R> {
             }
             Some(ev)
         }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ParserConfig {
+    pub ignore_comments: bool,
+}
+
+impl ParserConfig {
+    /// Creates a new config with default options.
+    pub fn new() -> Self {
+        ParserConfig {
+            ignore_comments: false,
+        }
+    }
+
+    /// Creates an FBX reader with this configuration.
+    pub fn create_reader<R: Read>(self, source: R) -> EventReader<R> {
+        EventReader::new_with_config(source, self)
+    }
+
+    /// Sets the field to provided value and returns updated config object.
+    pub fn ignore_comments(mut self, value: bool) -> Self {
+        self.ignore_comments = value;
+        self
+    }
+}
+
+impl Default for ParserConfig {
+    fn default() -> ParserConfig {
+        ParserConfig::new()
     }
 }
 
