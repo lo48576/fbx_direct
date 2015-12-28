@@ -56,6 +56,14 @@ impl ::std::error::Error for Error {
             ErrorKind::Unimplemented(_) => "Attempt to use unimplemented feature",
         }
     }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        match self.kind {
+            ErrorKind::Utf8Error(ref err) => Some(err as &::std::error::Error),
+            ErrorKind::Io(ref err) => Some(err as &::std::error::Error),
+            _ => None,
+        }
+    }
 }
 
 /// Error type.
