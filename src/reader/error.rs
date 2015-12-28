@@ -6,6 +6,7 @@ use std::io;
 use std::string;
 use std::str;
 use std::fmt;
+use std::error;
 
 /// A specialized `std::result::Result` type for FBX parsing.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -44,7 +45,7 @@ impl fmt::Display for Error {
     }
 }
 
-impl ::std::error::Error for Error {
+impl error::Error for Error {
     fn description(&self) -> &str {
         match self.kind {
             ErrorKind::Utf8Error(ref err) => err.description(),
@@ -54,6 +55,14 @@ impl ::std::error::Error for Error {
             ErrorKind::UnexpectedValue(_) => "Invalid value in FBX data",
             ErrorKind::UnexpectedEof => "Unexpected EOF",
             ErrorKind::Unimplemented(_) => "Attempt to use unimplemented feature",
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match self.kind {
+            ErrorKind::Utf8Error(ref err) => Some(err as &error::Error),
+            ErrorKind::Io(ref err) => Some(err as &error::Error),
+            _ => None,
         }
     }
 }
