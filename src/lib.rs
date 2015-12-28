@@ -11,6 +11,7 @@ extern crate log;
 
 pub use reader::EventReader;
 
+pub mod common;
 pub mod reader;
 
 #[test]

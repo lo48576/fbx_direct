@@ -2,7 +2,8 @@
 
 use std::io::Read;
 use reader::error::{Result, Error, ErrorKind};
-use reader::{FbxEvent, FbxFormatType, ParserConfig};
+use reader::{FbxEvent, ParserConfig};
+use common::FbxFormatType;
 use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
 
