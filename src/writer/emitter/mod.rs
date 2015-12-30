@@ -41,4 +41,8 @@ impl Emitter {
             state: EmitterState::Initial,
         }
     }
+
+    pub fn write<'a>(&mut self, event: FbxEvent<'a>) -> Result<()> {
+        Err(Error::Unimplemented("Emitter is unimplemented yet".to_string()))
+    }
 }

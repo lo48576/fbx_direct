@@ -36,7 +36,7 @@ impl<W: Write + Seek> EventWriter<W> {
     pub fn write<'a, E>(&mut self, event: E) -> Result<()>
         where E: Into<FbxEvent<'a>>
     {
-        Err(Error::Unimplemented("EventWriter is unimplemented yet".to_string()))
+        self.emitter.write(event.into())
     }
 }
 
