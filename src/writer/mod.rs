@@ -1,6 +1,6 @@
 //! Contains high-level interface for an events-based FBX emitter.
 
-use std::io::Write;
+use std::io::{Write, Seek};
 
 pub use self::error::{Result, Error};
 pub use self::events::FbxEvent;
@@ -10,12 +10,12 @@ mod error;
 mod events;
 
 /// A wrapper around an `std::io::Write` instance which emits Binary FBX.
-pub struct EventWriter<W: Write> {
+pub struct EventWriter<W: Write + Seek> {
     sink: W,
     emitter: emitter::Emitter,
 }
 
-impl<W: Write> EventWriter<W> {
+impl<W: Write + Seek> EventWriter<W> {
     /// Creates a new writer.
     pub fn new(sink: W) -> Self {
         EventWriter {
@@ -54,7 +54,7 @@ impl EmitterConfig {
     }
 
     /// Creates an FBX writer with this configuration.
-    pub fn create_writer<W: Write>(self, sink: W) -> EventWriter<W> {
+    pub fn create_writer<W: Write + Seek>(self, sink: W) -> EventWriter<W> {
         EventWriter::new_with_config(sink, self)
     }
 
