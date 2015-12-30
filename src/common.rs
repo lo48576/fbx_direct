@@ -42,6 +42,27 @@ pub enum OwnedProperty {
     Binary(Vec<u8>),
 }
 
+impl OwnedProperty {
+    pub fn borrow(&self) -> Property {
+        use std::borrow::Borrow;
+        match *self {
+            OwnedProperty::Bool(v) => Property::Bool(v),
+            OwnedProperty::I16(v) => Property::I16(v),
+            OwnedProperty::I32(v) => Property::I32(v),
+            OwnedProperty::I64(v) => Property::I64(v),
+            OwnedProperty::F32(v) => Property::F32(v),
+            OwnedProperty::F64(v) => Property::F64(v),
+            OwnedProperty::VecBool(ref v) => Property::VecBool(&v),
+            OwnedProperty::VecI32(ref v) => Property::VecI32(&v),
+            OwnedProperty::VecI64(ref v) => Property::VecI64(&v),
+            OwnedProperty::VecF32(ref v) => Property::VecF32(&v),
+            OwnedProperty::VecF64(ref v) => Property::VecF64(&v),
+            OwnedProperty::String(ref v) => Property::String(&v),
+            OwnedProperty::Binary(ref v) => Property::Binary(&v),
+        }
+    }
+}
+
 /// A property type of the FBX node.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Property<'a> {

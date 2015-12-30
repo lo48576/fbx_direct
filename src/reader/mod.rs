@@ -37,6 +37,22 @@ pub enum FbxEvent {
     Comment(String),
 }
 
+impl FbxEvent {
+    pub fn as_writer_event<'a>(&'a self) -> ::writer::FbxEvent {
+        use writer::FbxEvent as WriterEvent;
+        match *self {
+            FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),
+            FbxEvent::EndFbx => WriterEvent::EndFbx,
+            FbxEvent::StartNode{ ref name, ref properties } => WriterEvent::StartNode {
+                name: &name,
+                properties: properties.iter().map(|p| p.borrow()).collect(),
+            },
+            FbxEvent::EndNode => WriterEvent::EndNode,
+            FbxEvent::Comment(ref msg) => WriterEvent::Comment(&msg),
+        }
+    }
+}
+
 /// A wrapper around an `std::io::Read` instance which provides pull-based FBX parsing.
 pub struct EventReader<R: Read> {
     source: R,
