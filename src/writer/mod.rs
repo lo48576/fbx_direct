@@ -36,7 +36,7 @@ impl<W: Write + Seek> EventWriter<W> {
     pub fn write<'a, E>(&mut self, event: E) -> Result<()>
         where E: Into<FbxEvent<'a>>
     {
-        self.emitter.write(event.into())
+        self.emitter.write(&mut self.sink, event.into())
     }
 }
 

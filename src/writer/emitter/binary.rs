@@ -1,5 +1,8 @@
 //! Contains implementation of Binary FBX emitter.
 
+use std::io::{Write, Seek};
+use writer::error::{Result, Error};
+
 /// A writer for Binary FBX.
 #[derive(Debug, Clone)]
 pub struct BinaryEmitter {
@@ -16,5 +19,9 @@ impl BinaryEmitter {
             pos: 0,
             end_offset_pos_stack: vec![],
         }
+    }
+
+    pub fn emit_start_fbx<W: Write + Seek>(&mut self, sink: &mut W, ver: u32) -> Result<()> {
+        Err(Error::Unimplemented("BinaryEmitter::emit_start_fbx() is unimplemented yet".to_string()))
     }
 }

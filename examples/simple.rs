@@ -45,6 +45,7 @@ fn main() {
             },
             Ok(e) => {
                 println!("{}{:?}", indent(depth), e);
+                emitter.write(e.as_writer_event()).unwrap();
             },
             Err(e) => {
                 println!("Error: {:?}", e);
