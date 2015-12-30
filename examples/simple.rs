@@ -37,20 +37,21 @@ fn main() {
             Ok(ref e@reader::FbxEvent::StartNode { .. }) => {
                 println!("{}{:?}", indent(depth), e);
                 depth += 1;
-                emitter.write(e.as_writer_event()).unwrap();
             },
             Ok(ref e@reader::FbxEvent::EndNode) => {
                 depth -= 1;
                 println!("{}{:?}", indent(depth), e);
             },
-            Ok(e) => {
+            Ok(ref e) => {
                 println!("{}{:?}", indent(depth), e);
-                emitter.write(e.as_writer_event()).unwrap();
             },
             Err(e) => {
                 println!("Error: {:?}", e);
                 break;
             },
+        }
+        if let Ok(ref e) = e {
+            emitter.write(e.as_writer_event()).unwrap();
         }
     }
 }
