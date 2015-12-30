@@ -11,7 +11,7 @@ pub enum FbxFormatType {
 
 /// A property type of the FBX node.
 #[derive(Debug, Clone, PartialEq)]
-pub enum PropertyValue {
+pub enum OwnedProperty {
     /// Boolean.
     Bool(bool),
     /// 2 byte signed integer.

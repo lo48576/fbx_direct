@@ -4,7 +4,7 @@ use std::io::Read;
 use self::error::Result;
 
 pub use self::error::{Error, ErrorKind};
-use common::{FbxFormatType, PropertyValue};
+use common::{FbxFormatType, OwnedProperty};
 
 mod error;
 mod parser;
@@ -27,7 +27,7 @@ pub enum FbxEvent {
         /// Node name.
         name: String,
         /// Node properties.
-        properties: Vec<PropertyValue>,
+        properties: Vec<OwnedProperty>,
     },
     /// Denotes end of a node.
     EndNode,

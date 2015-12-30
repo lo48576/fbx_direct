@@ -6,7 +6,7 @@ extern crate flate2;
 use std::io::Read;
 use reader::error::{Result, Error, ErrorKind};
 use reader::FbxEvent;
-use common::PropertyValue;
+use common::OwnedProperty;
 use super::CommonState;
 
 /// A parser for Binary FBX.
@@ -71,7 +71,7 @@ impl BinaryParser {
         let name = try_read_fixstr!(common.pos, reader, node_record_header.name_len);
 
         // Read properties.
-        let mut properties = Vec::<PropertyValue>::with_capacity(node_record_header.num_properties as usize);
+        let mut properties = Vec::<OwnedProperty>::with_capacity(node_record_header.num_properties as usize);
         for _ in 0..node_record_header.num_properties {
             let prop = try!(self.read_property(reader, common));
             properties.push(prop);
@@ -84,7 +84,7 @@ impl BinaryParser {
     }
 
     /// Read a node property value.
-    fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<PropertyValue> {
+    fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<OwnedProperty> {
         let type_code = try_read_le_u8!(common.pos, reader);
         // type code must be ASCII.
         let type_code = if type_code > 0x80 {
@@ -103,27 +103,27 @@ impl BinaryParser {
                     warn!("Expected 'T' or 'Y' for representaton of boolean property value, but got {:#x}", val);
                 }
                 // Check LSB.
-                PropertyValue::Bool(val & 1 == 1)
+                OwnedProperty::Bool(val & 1 == 1)
             },
             // 2 byte signed integer.
             'Y' => {
-                PropertyValue::I16(try_read_le_i16!(common.pos, reader))
+                OwnedProperty::I16(try_read_le_i16!(common.pos, reader))
             },
             // 4 byte signed integer.
             'I' => {
-                PropertyValue::I32(try_read_le_i32!(common.pos, reader))
+                OwnedProperty::I32(try_read_le_i32!(common.pos, reader))
             },
             // 4 byte single-precision IEEE 754 floating-point number.
             'F' => {
-                PropertyValue::F32(try_read_le_f32!(common.pos, reader))
+                OwnedProperty::F32(try_read_le_f32!(common.pos, reader))
             },
             // 8 byte double-precision IEEE 754 floating-point number.
             'D' => {
-                PropertyValue::F64(try_read_le_f64!(common.pos, reader))
+                OwnedProperty::F64(try_read_le_f64!(common.pos, reader))
             },
             // 8 byte signed integer.
             'L' => {
-                PropertyValue::I64(try_read_le_i64!(common.pos, reader))
+                OwnedProperty::I64(try_read_le_i64!(common.pos, reader))
             },
             // Array types
             'f'|'d'|'l'|'i'|'b' => {
@@ -133,12 +133,12 @@ impl BinaryParser {
             // String
             'S' => {
                 let length = try_read_le_u32!(common.pos, reader);
-                PropertyValue::String(try_read_fixstr!(common.pos, reader, length))
+                OwnedProperty::String(try_read_fixstr!(common.pos, reader, length))
             },
             // Raw binary data
             'R' => {
                 let length = try_read_le_u32!(common.pos, reader);
-                PropertyValue::Binary(try_read_exact!(common.pos, reader, length))
+                OwnedProperty::Binary(try_read_exact!(common.pos, reader, length))
             },
             _ => {
                 return Err(Error::new(
@@ -154,7 +154,7 @@ impl BinaryParser {
     /// Read a property value of array type from given stream which maybe compressed.
     fn read_property_value_array<R: Read>(&mut self,
                                           reader: &mut R, common: &mut CommonState,
-                                          type_code: char, array_header: &PropertyArrayHeader) -> Result<PropertyValue> {
+                                          type_code: char, array_header: &PropertyArrayHeader) -> Result<OwnedProperty> {
         match array_header.encoding {
             // 0; raw
             0 => {
@@ -180,7 +180,7 @@ impl BinaryParser {
 
     /// Read a property value of array type from plain (uncompressed) stream.
     fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, abs_pos: u64, type_code: char,
-                                                            num_elements: u32) -> Result<(PropertyValue, u64)> {
+                                                            num_elements: u32) -> Result<(OwnedProperty, u64)> {
         use self::byteorder::{ReadBytesExt, LittleEndian};
         Ok(match type_code {
             // Array of 4 byte single-precision IEEE 754 floating-point number.
@@ -189,7 +189,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_f32::<LittleEndian>()));
                 }
-                (PropertyValue::VecF32(data), num_elements as u64 * 4)
+                (OwnedProperty::VecF32(data), num_elements as u64 * 4)
             },
             // Array of 8 byte double-precision IEEE 754 floating-point number.
             'd' => {
@@ -197,7 +197,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_f64::<LittleEndian>()));
                 }
-                (PropertyValue::VecF64(data), num_elements as u64 * 8)
+                (OwnedProperty::VecF64(data), num_elements as u64 * 8)
             },
             // Array of 8 byte signed integer.
             'l' => {
@@ -205,7 +205,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_i64::<LittleEndian>()));
                 }
-                (PropertyValue::VecI64(data), num_elements as u64 * 8)
+                (OwnedProperty::VecI64(data), num_elements as u64 * 8)
             },
             // Array of 4 byte signed integer.
             'i' => {
@@ -213,7 +213,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_i32::<LittleEndian>()));
                 }
-                (PropertyValue::VecI32(data), num_elements as u64 * 4)
+                (OwnedProperty::VecI32(data), num_elements as u64 * 4)
             },
             // Array of 1 byte booleans (always 0 or 1?).
             'b' => {
@@ -222,7 +222,7 @@ impl BinaryParser {
                     // Check LSB.
                     data.push(try_with_pos!(abs_pos, reader.read_u8()) & 1 == 1);
                 }
-                (PropertyValue::VecBool(data), num_elements as u64)
+                (OwnedProperty::VecBool(data), num_elements as u64)
             },
             _ => {
                 // Unreachable because `read_property()` gives only 'f' , 'd', 'l', 'i', or 'b' to
