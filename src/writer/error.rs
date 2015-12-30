@@ -12,6 +12,8 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 pub enum Error {
     /// I/O error.
     Io(io::Error),
+    /// FBX not started but an event other than `StartFbx` is given.
+    FbxNotStarted,
     /// Unimplemented feature.
     Unimplemented(String),
 }
@@ -22,6 +24,7 @@ impl Clone for Error {
         use std::error::Error;
         match *self {
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),
+            FbxNotStarted => FbxNotStarted,
             Unimplemented(ref e) => Unimplemented(e.clone()),
         }
     }
