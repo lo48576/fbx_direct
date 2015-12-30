@@ -64,11 +64,13 @@ impl Emitter {
                 }
             },
             EmitterState::Binary(ref mut emitter) => match event {
+                FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
                 _ => {
                     Err(Error::Unimplemented("Emitter is unimplemented yet".to_string()))
                 }
             },
             EmitterState::Ascii(ref mut emitter) => match event {
+                FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
                 _ => {
                     Err(Error::Unimplemented("Emitter is unimplemented yet".to_string()))
                 }

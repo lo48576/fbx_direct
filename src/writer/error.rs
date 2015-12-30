@@ -14,6 +14,8 @@ pub enum Error {
     Io(io::Error),
     /// FBX not started but an event other than `StartFbx` is given.
     FbxNotStarted,
+    /// FBX is already started but `StartFbx` is given.
+    FbxAlreadyStarted,
     /// Unimplemented feature.
     Unimplemented(String),
 }
@@ -25,6 +27,7 @@ impl Clone for Error {
         match *self {
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),
             FbxNotStarted => FbxNotStarted,
+            FbxAlreadyStarted => FbxAlreadyStarted,
             Unimplemented(ref e) => Unimplemented(e.clone()),
         }
     }
