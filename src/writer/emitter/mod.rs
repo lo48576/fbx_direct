@@ -65,14 +65,21 @@ impl Emitter {
             },
             EmitterState::Binary(ref mut emitter) => match event {
                 FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
-                _ => {
-                    Err(Error::Unimplemented("Emitter is unimplemented yet".to_string()))
-                }
+                FbxEvent::EndFbx => emitter.emit_end_fbx(sink),
+                FbxEvent::StartNode { name, properties } => emitter.emit_start_node(sink, name, &properties),
+                FbxEvent::EndNode => emitter.emit_end_node(sink),
+                FbxEvent::Comment(_) => if self.config.ignore_minor_errors {
+                    warn!("Comment cannot be exported to Binary FBX");
+                    Ok(())
+                } else {
+                    error!("Comment cannot be exported to Binary FBX");
+                    Err(Error::UnwritableEvent)
+                },
             },
             EmitterState::Ascii(ref mut emitter) => match event {
                 FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
                 _ => {
-                    Err(Error::Unimplemented("Emitter is unimplemented yet".to_string()))
+                    Err(Error::Unimplemented("Ascii FBX emitter is unimplemented yet".to_string()))
                 }
             },
         };

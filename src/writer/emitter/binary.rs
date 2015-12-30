@@ -1,7 +1,9 @@
 //! Contains implementation of Binary FBX emitter.
 
 use std::io::{Write, Seek};
+use std::borrow::Cow;
 use writer::error::{Result, Error};
+use common::Property;
 
 /// A writer for Binary FBX.
 #[derive(Debug, Clone)]
@@ -23,5 +25,17 @@ impl BinaryEmitter {
 
     pub fn emit_start_fbx<W: Write + Seek>(&mut self, sink: &mut W, ver: u32) -> Result<()> {
         Err(Error::Unimplemented("BinaryEmitter::emit_start_fbx() is unimplemented yet".to_string()))
+    }
+
+    pub fn emit_end_fbx<W: Write + Seek>(&mut self, sink: &mut W) -> Result<()> {
+        Err(Error::Unimplemented("BinaryEmitter::emit_end_fbx() is unimplemented yet".to_string()))
+    }
+
+    pub fn emit_start_node<W: Write + Seek>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
+        Err(Error::Unimplemented("BinaryEmitter::emit_start_node() is unimplemented yet".to_string()))
+    }
+
+    pub fn emit_end_node<W: Write + Seek>(&mut self, sink: &mut W) -> Result<()> {
+        Err(Error::Unimplemented("BinaryEmitter::emit_end_node() is unimplemented yet".to_string()))
     }
 }
