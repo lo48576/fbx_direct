@@ -16,6 +16,8 @@ pub enum Error {
     FbxNotStarted,
     /// FBX is already started but `StartFbx` is given.
     FbxAlreadyStarted,
+    /// Given event is not writable in current format.
+    UnwritableEvent,
     /// Unimplemented feature.
     Unimplemented(String),
 }
@@ -28,6 +30,7 @@ impl Clone for Error {
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),
             FbxNotStarted => FbxNotStarted,
             FbxAlreadyStarted => FbxAlreadyStarted,
+            UnwritableEvent => UnwritableEvent,
             Unimplemented(ref e) => Unimplemented(e.clone()),
         }
     }
