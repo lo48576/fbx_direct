@@ -12,10 +12,14 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 pub enum Error {
     /// I/O error.
     Io(io::Error),
+    /// `EndNode` event is given but there's no node to close.
+    ExtraEndNode,
     /// FBX not started but an event other than `StartFbx` is given.
     FbxNotStarted,
     /// FBX is already started but `StartFbx` is given.
     FbxAlreadyStarted,
+    /// Unsupported FBX version.
+    UnsupportedFbxVersion,
     /// Given event is not writable in current format.
     UnwritableEvent,
     /// Unimplemented feature.
@@ -28,10 +32,8 @@ impl Clone for Error {
         use std::error::Error;
         match *self {
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),
-            FbxNotStarted => FbxNotStarted,
-            FbxAlreadyStarted => FbxAlreadyStarted,
-            UnwritableEvent => UnwritableEvent,
             Unimplemented(ref e) => Unimplemented(e.clone()),
+            ref e => e.clone(),
         }
     }
 }
