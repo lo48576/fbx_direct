@@ -44,7 +44,6 @@ pub enum OwnedProperty {
 
 impl OwnedProperty {
     pub fn borrow(&self) -> Property {
-        use std::borrow::Borrow;
         match *self {
             OwnedProperty::Bool(v) => Property::Bool(v),
             OwnedProperty::I16(v) => Property::I16(v),
