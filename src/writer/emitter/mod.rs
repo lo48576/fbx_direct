@@ -56,9 +56,13 @@ impl Emitter {
                         result
                     },
                     FbxEvent::StartFbx(FbxFormatType::Ascii) => {
-                        Err(Error::Unimplemented("Ascii FBX emitter is unimplemented".to_string()))
+                        let mut emitter = AsciiEmitter::new();
+                        let result = emitter.emit_start_fbx(sink);
+                        self.state = EmitterState::Ascii(emitter);
+                        result
+                        //Err(Error::Unimplemented("Ascii FBX emitter is unimplemented".to_string()))
                     },
-                    ref e => {
+                    _ => {
                         Err(Error::FbxNotStarted)
                     }
                 }
@@ -76,7 +80,7 @@ impl Emitter {
                     Err(Error::UnwritableEvent)
                 },
             },
-            EmitterState::Ascii(ref mut emitter) => match event {
+            EmitterState::Ascii(ref mut _emitter) => match event {
                 FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
                 _ => {
                     Err(Error::Unimplemented("Ascii FBX emitter is unimplemented yet".to_string()))
