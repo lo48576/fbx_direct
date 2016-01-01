@@ -2,11 +2,9 @@ extern crate fbx_direct;
 extern crate env_logger;
 
 use std::fs::File;
-use std::io::{BufReader, BufWriter};
+use std::io::BufReader;
 
-use fbx_direct::reader;
-use fbx_direct::reader::EventReader;
-use fbx_direct::writer::EventWriter;
+use fbx_direct::reader::{FbxEvent, EventReader};
 
 fn indent(size: usize) -> String {
     const INDENT: &'static str = "    ";
@@ -27,18 +25,16 @@ fn main() {
     };
 
     let file = BufReader::new(File::open(filename.clone()).unwrap());
-    let file_out = BufWriter::new(File::create(filename + ".exported.fbx").unwrap());
 
     let parser = EventReader::new(file);
-    let mut emitter = EventWriter::new(file_out);
     let mut depth = 0;
     for e in parser {
         match e {
-            Ok(ref e@reader::FbxEvent::StartNode { .. }) => {
+            Ok(ref e@FbxEvent::StartNode { .. }) => {
                 println!("{}{:?}", indent(depth), e);
                 depth += 1;
             },
-            Ok(ref e@reader::FbxEvent::EndNode) => {
+            Ok(ref e@FbxEvent::EndNode) => {
                 depth -= 1;
                 println!("{}{:?}", indent(depth), e);
             },
@@ -49,9 +45,6 @@ fn main() {
                 println!("Error: {:?}", e);
                 break;
             },
-        }
-        if let Ok(ref e) = e {
-            emitter.write(e.as_writer_event()).unwrap();
         }
     }
 }
