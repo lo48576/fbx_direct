@@ -1,4 +1,4 @@
-//! Contains high-level interface for an events-based FBX emitter.
+//! Contains interface for an events-based FBX emitter.
 
 use std::io::{Write, Seek};
 

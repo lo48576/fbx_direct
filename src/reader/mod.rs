@@ -1,4 +1,4 @@
-//! Contains high-level interface for a pull-based (StAX-like) FBX parser.
+//! Contains interface for a pull-based (StAX-like) FBX parser.
 
 use std::io::Read;
 use self::error::Result;
