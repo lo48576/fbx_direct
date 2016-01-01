@@ -10,9 +10,8 @@
 extern crate log;
 
 pub use reader::EventReader;
+pub use writer::EventWriter;
 
+pub mod common;
 pub mod reader;
-
-#[test]
-fn it_works() {
-}
+pub mod writer;
