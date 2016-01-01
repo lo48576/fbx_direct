@@ -13,6 +13,7 @@ description = "Low-level FBX library"
 include = [
 	"**/*.rs",
 	"Cargo.toml",
+	"tests/assets/*"
 ]
 
 [dependencies]
