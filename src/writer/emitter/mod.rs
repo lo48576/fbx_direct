@@ -60,7 +60,6 @@ impl Emitter {
                         let result = emitter.emit_start_fbx(sink);
                         self.state = EmitterState::Ascii(emitter);
                         result
-                        //Err(Error::Unimplemented("Ascii FBX emitter is unimplemented".to_string()))
                     },
                     _ => {
                         Err(Error::FbxNotStarted)

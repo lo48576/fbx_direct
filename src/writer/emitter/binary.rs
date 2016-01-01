@@ -109,6 +109,40 @@ impl BinaryEmitter {
         if !properties.is_empty() {
             let mut props_byte_size = 0_u32;
             for prop in properties {
+                macro_rules! read_array_value {
+                    ($vec:ident, $type_code:expr, $elem_type_writer:ident) => ({
+                        try!(sink.write_u8($type_code as u8));
+
+                        // Write a property array header.
+                        // Write array length (element numbers, not byte size).
+                        try!(sink.write_u32::<LittleEndian>($vec.len() as u32));
+                        // Write encoding.
+                        // 0 for plain data, 1 for zlib-compressed data.
+                        try!(sink.write_u32::<LittleEndian>(1));
+                        // Write a placeholder for byte size of properties.
+                        let byte_size_pos = try!(sink.seek(SeekFrom::Current(0)));
+                        try!(sink.write_u32::<LittleEndian>(0));
+
+                        let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
+                        {
+                            let mut encoder = flate2::write::ZlibEncoder::new(sink.by_ref(), flate2::Compression::Default);
+                            for &v in $vec {
+                                //try!(encoder.write_i32::<LittleEndian>(v));
+                                try!(encoder.$elem_type_writer::<LittleEndian>(v));
+                            }
+                            try!(encoder.finish());
+                        }
+                        let last_pos = try!(sink.seek(SeekFrom::Current(0)));
+
+                        // Update byte size of properties.
+                        let byte_size = last_pos - vec_start_pos;
+                        try!(sink.seek(SeekFrom::Start(byte_size_pos)));
+                        try!(sink.write_u32::<LittleEndian>(byte_size as u32));
+                        try!(sink.seek(SeekFrom::Start(last_pos)));
+                        // 12: property array header.
+                        12 + byte_size as u32
+                    })
+                };
                 props_byte_size += 1 + match *prop {
                     Property::Bool(v) => {
                         try!(sink.write_u8('C' as u8));
@@ -149,66 +183,16 @@ impl BinaryEmitter {
                         vec.len() as u32
                     },
                     Property::VecI32(vec) => {
-                        try!(sink.write_u8('i' as u8));
-
-                        // Write a property array header.
-                        // Write array length (element numbers, not byte size).
-                        try!(sink.write_u32::<LittleEndian>(vec.len() as u32));
-                        // Write encoding.
-                        // 0 for plain data, 1 for zlib-compressed data.
-                        try!(sink.write_u32::<LittleEndian>(1));
-                        // Write a placeholder for byte size of properties.
-                        let byte_size_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        try!(sink.write_u32::<LittleEndian>(0));
-
-                        let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        {
-                            let mut encoder = flate2::write::ZlibEncoder::new(sink.by_ref(), flate2::Compression::Default);
-                            for &v in vec {
-                                try!(encoder.write_i32::<LittleEndian>(v));
-                            }
-                            try!(encoder.finish());
-                        }
-                        let last_pos = try!(sink.seek(SeekFrom::Current(0)));
-
-                        // Update byte size of properties.
-                        let byte_size = last_pos - vec_start_pos;
-                        try!(sink.seek(SeekFrom::Start(byte_size_pos)));
-                        try!(sink.write_u32::<LittleEndian>(byte_size as u32));
-                        try!(sink.seek(SeekFrom::Start(last_pos)));
-                        // 12: property array header.
-                        12 + byte_size as u32
+                        read_array_value!(vec, 'i', write_i32)
+                    },
+                    Property::VecI64(vec) => {
+                        read_array_value!(vec, 'l', write_i64)
+                    },
+                    Property::VecF32(vec) => {
+                        read_array_value!(vec, 'f', write_f32)
                     },
                     Property::VecF64(vec) => {
-                        try!(sink.write_u8('d' as u8));
-
-                        // Write a property array header.
-                        // Write array length (element numbers, not byte size).
-                        try!(sink.write_u32::<LittleEndian>(vec.len() as u32));
-                        // Write encoding.
-                        // 0 for plain data, 1 for zlib-compressed data.
-                        try!(sink.write_u32::<LittleEndian>(1));
-                        // Write a placeholder for byte size of properties.
-                        let byte_size_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        try!(sink.write_u32::<LittleEndian>(0));
-
-                        let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        {
-                            let mut encoder = flate2::write::ZlibEncoder::new(sink.by_ref(), flate2::Compression::Default);
-                            for &v in vec {
-                                try!(encoder.write_f64::<LittleEndian>(v));
-                            }
-                            try!(encoder.finish());
-                        }
-                        let last_pos = try!(sink.seek(SeekFrom::Current(0)));
-
-                        // Update byte size of properties.
-                        let byte_size = last_pos - vec_start_pos;
-                        try!(sink.seek(SeekFrom::Start(byte_size_pos)));
-                        try!(sink.write_u32::<LittleEndian>(byte_size as u32));
-                        try!(sink.seek(SeekFrom::Start(last_pos)));
-                        // 12: property array header.
-                        12 + byte_size as u32
+                        read_array_value!(vec, 'd', write_f64)
                     },
                     Property::String(s) => {
                         try!(sink.write_u8('S' as u8));
@@ -222,9 +206,6 @@ impl BinaryEmitter {
                         try!(sink.write_all(b));
                         4 + b.len() as u32
                     },
-                    _ => {
-                        return Err(Error::Unimplemented("BinaryEmitter::emit_start_node() is unimplemented yet".to_string()));
-                    }
                 };
             }
             // Update `property_list_len`
