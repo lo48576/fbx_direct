@@ -16,12 +16,13 @@ fn indent(size: usize) -> String {
         .fold(String::with_capacity(size * INDENT.len()), |r, s| r + s)
 }
 
-fn main() {
+#[test]
+fn binary_export_import() {
     use std::io::Write;
 
     env_logger::init().unwrap();
 
-    let filename = "assets/blender_2_72b_default.fbx";
+    let filename = "tests/assets/blender_2_72b_default.fbx";
 
     let mut exported1 = std::io::Cursor::new(Vec::<u8>::new());
     {
