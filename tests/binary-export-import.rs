@@ -17,7 +17,7 @@ fn indent(size: usize) -> String {
 }
 
 #[test]
-fn main() {
+fn binary_export_import() {
     use std::io::Write;
 
     env_logger::init().unwrap();
