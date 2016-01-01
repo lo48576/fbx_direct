@@ -1,21 +1,13 @@
-//! Contains high-level interface for a pull-based (StAX-like) FBX parser.
+//! Contains interface for a pull-based (StAX-like) FBX parser.
 
 use std::io::Read;
 use self::error::Result;
 
 pub use self::error::{Error, ErrorKind};
+use common::{FbxFormatType, OwnedProperty};
 
 mod error;
 mod parser;
-
-/// Format of FBX data
-#[derive(Debug, Clone, Copy)]
-pub enum FbxFormatType {
-    /// Binary FBX, with version (for example, `7400` for FBX 7.4).
-    Binary(u32),
-    /// ASCII FBX.
-    Ascii,
-}
 
 /// A node of an FBX input stream.
 ///
@@ -35,7 +27,7 @@ pub enum FbxEvent {
         /// Node name.
         name: String,
         /// Node properties.
-        properties: Vec<PropertyValue>,
+        properties: Vec<OwnedProperty>,
     },
     /// Denotes end of a node.
     EndNode,
@@ -43,6 +35,22 @@ pub enum FbxEvent {
     ///
     /// Comment only appears in ASCII FBX.
     Comment(String),
+}
+
+impl FbxEvent {
+    pub fn as_writer_event<'a>(&'a self) -> ::writer::FbxEvent {
+        use writer::FbxEvent as WriterEvent;
+        match *self {
+            FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),
+            FbxEvent::EndFbx => WriterEvent::EndFbx,
+            FbxEvent::StartNode{ ref name, ref properties } => WriterEvent::StartNode {
+                name: &name,
+                properties: properties.iter().map(|p| p.borrow()).collect(),
+            },
+            FbxEvent::EndNode => WriterEvent::EndNode,
+            FbxEvent::Comment(ref msg) => WriterEvent::Comment(&msg),
+        }
+    }
 }
 
 /// A wrapper around an `std::io::Read` instance which provides pull-based FBX parsing.
@@ -151,37 +159,4 @@ impl Default for ParserConfig {
     fn default() -> ParserConfig {
         ParserConfig::new()
     }
-}
-
-/// A property type of the FBX node.
-#[derive(Debug, Clone, PartialEq)]
-pub enum PropertyValue {
-    /// Boolean.
-    Bool(bool),
-    /// 2 byte signed integer.
-    I16(i16),
-    /// 4 byte signed integer.
-    I32(i32),
-    /// 8 byte signed integer.
-    I64(i64),
-    /// 4 byte single-precision IEEE 754 floating-point number.
-    F32(f32),
-    /// 8 byte double-precision IEEE 754 floating-point number.
-    F64(f64),
-    /// Array of boolean.
-    VecBool(Vec<bool>),
-    /// Array of 4 byte signed integer.
-    VecI32(Vec<i32>),
-    /// Array of 8 byte signed integer.
-    VecI64(Vec<i64>),
-    /// Array of 4 byte single-precision IEEE 754 number.
-    VecF32(Vec<f32>),
-    /// Array of 8 byte double-precision IEEE 754 number.
-    VecF64(Vec<f64>),
-    /// String.
-    ///
-    /// Note that the string can contain special character like `\u{0}`.
-    String(String),
-    /// Raw binary data.
-    Binary(Vec<u8>),
 }
