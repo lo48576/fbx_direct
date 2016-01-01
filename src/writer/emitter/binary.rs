@@ -3,9 +3,7 @@
 extern crate byteorder;
 extern crate flate2;
 
-use std::io::{Write, Seek};
-use std::borrow::Cow;
-use std::io::SeekFrom;
+use std::io::{Write, Seek, SeekFrom};
 use self::byteorder::{LittleEndian, WriteBytesExt};
 use writer::error::{Result, Error};
 use common::Property;
@@ -49,11 +47,39 @@ impl BinaryEmitter {
         // Write null record header.
         // 13: size of a node record header.
         try!(sink.write_all(&[0; 13]));
-        // Write footer.
-        // TODO: unimplemented.
 
+        // Write footer.
+
+        // Write unknown footer.
+        // NOTE: This footer is `fa bc ax 0x dx cx dx 6x bx 7x fx 8x 1x fx 2x 7x`,
+        //       but detail is unknown.
+        try!(sink.write_all(&[
+           0xfa as u8, 0xbc, 0xaf, 0x0f,
+           0xdf, 0xcf, 0xdf, 0x6f,
+           0xbf, 0x7f, 0xff, 0x8f,
+           0x1f, 0xff, 0x2f, 0x7f
+        ]));
+        // Write padding.
+        {
+            let current_off = try!(sink.seek(SeekFrom::Current(0))) & 0x0f;
+            if current_off != 0 {
+                try!(sink.write_all(&(current_off..16).map(|_| 0).collect::<Vec<u8>>()));
+            }
+        }
+        // Write `0u32`, FBX version, and [0; 120].
+        try!(sink.write_all(&[0; 4]));
+        try!(sink.write_u32::<LittleEndian>(self.version));
+        try!(sink.write_all(&[0; 120]));
+        // Write unknown but fixed magic.
+        try!(sink.write_all(&[
+            0xf8 as u8, 0x5a, 0x8c, 0x6a,
+            0xde, 0xf5, 0xd9, 0x7e,
+            0xec, 0xe9, 0x0c, 0xe3,
+            0x75, 0x8f, 0x29, 0x0b
+        ]));
+
+        // All done.
         Ok(())
-        //Err(Error::Unimplemented("BinaryEmitter::emit_end_fbx() is unimplemented yet".to_string()))
     }
 
     pub fn emit_start_node<W: Write + Seek>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
@@ -127,13 +153,13 @@ impl BinaryEmitter {
 
                         // Write a property array header.
                         // Write array length (element numbers, not byte size).
-                        sink.write_u32::<LittleEndian>(vec.len() as u32);
+                        try!(sink.write_u32::<LittleEndian>(vec.len() as u32));
                         // Write encoding.
                         // 0 for plain data, 1 for zlib-compressed data.
-                        sink.write_u32::<LittleEndian>(1);
+                        try!(sink.write_u32::<LittleEndian>(1));
                         // Write a placeholder for byte size of properties.
                         let byte_size_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        sink.write_u32::<LittleEndian>(0);
+                        try!(sink.write_u32::<LittleEndian>(0));
 
                         let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
                         {
@@ -158,13 +184,13 @@ impl BinaryEmitter {
 
                         // Write a property array header.
                         // Write array length (element numbers, not byte size).
-                        sink.write_u32::<LittleEndian>(vec.len() as u32);
+                        try!(sink.write_u32::<LittleEndian>(vec.len() as u32));
                         // Write encoding.
                         // 0 for plain data, 1 for zlib-compressed data.
-                        sink.write_u32::<LittleEndian>(1);
+                        try!(sink.write_u32::<LittleEndian>(1));
                         // Write a placeholder for byte size of properties.
                         let byte_size_pos = try!(sink.seek(SeekFrom::Current(0)));
-                        sink.write_u32::<LittleEndian>(0);
+                        try!(sink.write_u32::<LittleEndian>(0));
 
                         let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
                         {
