@@ -29,9 +29,9 @@ impl BinaryEmitter {
     }
 
     pub fn emit_start_fbx<W: Write + Seek>(&mut self, sink: &mut W, ver: u32) -> Result<()> {
-        if ver < 7000 {
+        if (ver < 7000) || (ver >= 8000) {
             error!("Unsupported version: {}", ver);
-            return Err(Error::UnsupportedFbxVersion);
+            return Err(Error::UnsupportedFbxVersion(ver));
         }
         // Write magic binary for Binary FBX.
         try!(sink.write(b"Kaydara FBX Binary  \x00"));

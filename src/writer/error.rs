@@ -21,7 +21,7 @@ pub enum Error {
     /// FBX is already started but `StartFbx` is given.
     FbxAlreadyStarted,
     /// Unsupported FBX version.
-    UnsupportedFbxVersion,
+    UnsupportedFbxVersion(u32),
     /// Given event is not writable in current format.
     UnwritableEvent,
     /// Unimplemented feature.
@@ -35,7 +35,7 @@ impl fmt::Display for Error {
             Error::ExtraEndNode => write!(f, "Extra end-of-node marker detected"),
             Error::FbxNotStarted => write!(f, "An writer event is given, but FBX data is not started yet"),
             Error::FbxAlreadyStarted => write!(f, "Got a writer event to start FBX, but FBX data is already started"),
-            Error::UnsupportedFbxVersion => write!(f, "Unsupported FBX version"),
+            Error::UnsupportedFbxVersion(ver) => write!(f, "Unsupported FBX version ({})", ver),
             Error::UnwritableEvent => write!(f, "A given event is not writable in current format"),
             Error::Unimplemented(ref err) => write!(f, "Unimplemented feature: {}", err),
         }
@@ -49,7 +49,7 @@ impl error::Error for Error {
             Error::ExtraEndNode => "Extra end-of-node marker detected",
             Error::FbxNotStarted => "An writer event is given, but FBX data is not started yet",
             Error::FbxAlreadyStarted => "Got a writer event to start FBX, but FBX data is already started",
-            Error::UnsupportedFbxVersion => "Unsupported FBX version",
+            Error::UnsupportedFbxVersion(_) => "Unsupported FBX version",
             Error::UnwritableEvent => "A given event is not writable in current format",
             Error::Unimplemented(_) => "Attempt to use unimplemented feature",
         }
