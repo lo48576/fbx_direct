@@ -1,6 +1,6 @@
 [package]
 name = "fbx_direct"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
 homepage = "https://github.com/l1048576/fbx_direct"
