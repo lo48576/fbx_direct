@@ -76,12 +76,26 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
+    pub fn into_bool(self) -> Option<bool> {
+        self.get_bool()
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
     pub fn get_i16(&self) -> Option<i16> {
         match *self {
             OwnedProperty::Bool(v) => Some(if v { 1 } else { 0 }),
             OwnedProperty::I16(v) => Some(v),
             _ => None,
         }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_i16(self) -> Option<i16> {
+        self.get_i16()
     }
 
     /// Safe conversion.
@@ -94,6 +108,13 @@ impl OwnedProperty {
             OwnedProperty::I32(v) => Some(v),
             _ => None,
         }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_i32(self) -> Option<i32> {
+        self.get_i32()
     }
 
     /// Safe conversion.
@@ -112,12 +133,26 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
+    pub fn into_i64(self) -> Option<i64> {
+        self.get_i64()
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
     pub fn get_f32(&self) -> Option<f32> {
         match *self {
             OwnedProperty::F32(v) => Some(v),
             OwnedProperty::F64(v) => Some(v as f32),
             _ => None,
         }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_f32(self) -> Option<f32> {
+        self.get_f32()
     }
 
     /// Safe conversion.
@@ -134,9 +169,26 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
+    pub fn into_f64(self) -> Option<f64> {
+        self.get_f64()
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_bool(&self) -> Option<&[bool]> {
         match *self {
             OwnedProperty::VecBool(ref v) => Some(&v[..]),
+            _ => None,
+        }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_vec_bool(self) -> Option<Vec<bool>> {
+        match self {
+            OwnedProperty::VecBool(v) => Some(v),
             _ => None,
         }
     }
@@ -148,6 +200,17 @@ impl OwnedProperty {
         match *self {
             OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
             OwnedProperty::VecI32(ref v) => Some(Cow::Borrowed(&v)),
+            _ => None,
+        }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_vec_i32(self) -> Option<Vec<i32>> {
+        match self {
+            OwnedProperty::VecBool(v) => Some(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
+            OwnedProperty::VecI32(v) => Some(v),
             _ => None,
         }
     }
@@ -167,10 +230,33 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
+    pub fn into_vec_i64(self) -> Option<Vec<i64>> {
+        match self {
+            OwnedProperty::VecBool(v) => Some(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
+            OwnedProperty::VecI32(v) => Some(v.into_iter().map(|v| v as i64).collect()),
+            OwnedProperty::VecI64(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_f32(&self) -> Option<Cow<[f32]>> {
         match *self {
             OwnedProperty::VecF32(ref v) => Some(Cow::Borrowed(&v)),
             OwnedProperty::VecF64(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as f32).collect())),
+            _ => None,
+        }
+    }
+
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_vec_f32(self) -> Option<Vec<f32>> {
+        match self {
+            OwnedProperty::VecF32(v) => Some(v),
+            OwnedProperty::VecF64(v) => Some(v.into_iter().map(|v| v as f32).collect()),
             _ => None,
         }
     }
@@ -186,6 +272,17 @@ impl OwnedProperty {
         }
     }
 
+    /// Safe conversion.
+    ///
+    /// Tries to convert property value into specific type without data loss.
+    pub fn into_vec_f64(self) -> Option<Vec<f64>> {
+        match self {
+            OwnedProperty::VecF32(v) => Some(v.into_iter().map(|v| v as f64).collect()),
+            OwnedProperty::VecF64(v) => Some(v),
+            _ => None,
+        }
+    }
+
     /// Get string value if possible.
     pub fn get_string(&self) -> Option<&String> {
         match *self {
@@ -194,10 +291,26 @@ impl OwnedProperty {
         }
     }
 
+    /// Get string value if possible.
+    pub fn into_string(self) -> Option<String> {
+        match self {
+            OwnedProperty::String(v) => Some(v),
+            _ => None,
+        }
+    }
+
     /// Get binary value if possible.
     pub fn get_binary(&self) -> Option<&[u8]> {
         match *self {
             OwnedProperty::Binary(ref v) => Some(&v[..]),
+            _ => None,
+        }
+    }
+
+    /// Get binary value if possible.
+    pub fn into_binary(self) -> Option<Vec<u8>> {
+        match self {
+            OwnedProperty::Binary(v) => Some(v),
             _ => None,
         }
     }
@@ -387,7 +500,9 @@ mod property_tests {
         let vec_i64 = vec_i32.iter().map(|&v| v as i64).collect::<Vec<_>>();
         let src = OwnedProperty::VecI32(vec_i32.clone());
         let dst = src.get_vec_i64().unwrap().into_owned();
+        let dst2 = src.into_vec_i64().unwrap();
         assert_eq!(vec_i64, dst);
+        assert_eq!(vec_i64, dst2);
     }
 
     #[test]
