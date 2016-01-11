@@ -3,7 +3,7 @@
 use std::io::{Write, Seek};
 use writer::error::{Result, Error};
 
-/// Writer for ASCII FBX.
+/// A writer for ASCII FBX.
 #[derive(Debug, Clone)]
 pub struct AsciiEmitter;
 
