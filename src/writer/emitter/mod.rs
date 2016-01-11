@@ -50,6 +50,11 @@ impl Emitter {
             EmitterState::Initial => {
                 match event {
                     FbxEvent::StartFbx(FbxFormatType::Binary(ver)) => {
+                        if let Some(config_fbx_ver) = self.config.fbx_version {
+                            if ver != config_fbx_ver {
+                                return Err(Error::InvalidOption(format!("FBX version {} specified by emitter config, but {} is given for `StartFbx` event", config_fbx_ver, ver)));
+                            }
+                        }
                         let mut emitter = BinaryEmitter::new(ver);
                         let result = emitter.emit_start_fbx(sink, ver);
                         self.state = EmitterState::Binary(emitter);
@@ -57,7 +62,11 @@ impl Emitter {
                     },
                     FbxEvent::StartFbx(FbxFormatType::Ascii) => {
                         let mut emitter = AsciiEmitter::new();
-                        let result = emitter.emit_start_fbx(sink);
+                        let result = if let Some(ver) = self.config.fbx_version {
+                            emitter.emit_start_fbx(sink, ver)
+                        } else {
+                            Err(Error::InvalidOption("Attempt to export ASCII FBX but version is not specified".to_string()))
+                        };
                         self.state = EmitterState::Ascii(emitter);
                         result
                     },
@@ -79,11 +88,12 @@ impl Emitter {
                     Err(Error::UnwritableEvent)
                 },
             },
-            EmitterState::Ascii(ref mut _emitter) => match event {
+            EmitterState::Ascii(ref mut emitter) => match event {
                 FbxEvent::StartFbx(_) => Err(Error::FbxAlreadyStarted),
-                _ => {
-                    Err(Error::Unimplemented("Ascii FBX emitter is unimplemented yet".to_string()))
-                }
+                FbxEvent::EndFbx => emitter.emit_end_fbx(sink),
+                FbxEvent::StartNode { name, properties } => emitter.emit_start_node(sink, name, &properties),
+                FbxEvent::EndNode => emitter.emit_end_node(sink),
+                FbxEvent::Comment(comment) => emitter.emit_comment(sink, comment),
             },
         };
         if let Err(ref err) = result {
