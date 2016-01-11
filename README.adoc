@@ -13,7 +13,7 @@ This library currently contains only Binary FBX event reader and writer like xml
 
 .writer
 - [x] Binary FBX writer
-- [ ] ASCII FBX writer
+- [x] ASCII FBX writer
 
 == License
 This software is released under the MIT License, see LICENSE.txt.
