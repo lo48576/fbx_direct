@@ -50,6 +50,11 @@ impl Emitter {
             EmitterState::Initial => {
                 match event {
                     FbxEvent::StartFbx(FbxFormatType::Binary(ver)) => {
+                        if let Some(config_fbx_ver) = self.config.fbx_version {
+                            if ver != config_fbx_ver {
+                                return Err(Error::InvalidOption(format!("FBX version {} specified by emitter config, but {} is given for `StartFbx` event", config_fbx_ver, ver)));
+                            }
+                        }
                         let mut emitter = BinaryEmitter::new(ver);
                         let result = emitter.emit_start_fbx(sink, ver);
                         self.state = EmitterState::Binary(emitter);

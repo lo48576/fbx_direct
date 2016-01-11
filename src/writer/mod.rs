@@ -43,6 +43,7 @@ impl<W: Write + Seek> EventWriter<W> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EmitterConfig {
     pub ignore_minor_errors: bool,
+    pub fbx_version: Option<u32>,
 }
 
 impl EmitterConfig {
@@ -50,6 +51,7 @@ impl EmitterConfig {
     pub fn new() -> Self {
         EmitterConfig {
             ignore_minor_errors: true,
+            fbx_version: None,
         }
     }
 
@@ -61,6 +63,12 @@ impl EmitterConfig {
     /// Sets the field to provided value and returns updated config object.
     pub fn ignore_minor_errors(mut self, value: bool) -> Self {
         self.ignore_minor_errors = value;
+        self
+    }
+
+    /// Sets the FBX version to write.
+    pub fn fbx_version(mut self, value: Option<u32>) -> Self {
+        self.fbx_version = value;
         self
     }
 }
