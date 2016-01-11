@@ -1,6 +1,6 @@
 [package]
 name = "fbx_direct"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
 homepage = "https://github.com/l1048576/fbx_direct"
@@ -20,6 +20,7 @@ include = [
 log = "^0.3.4"
 byteorder = "^0.4.2"
 flate2 = "^0.2.11"
+rustc-serialize = "^0.3.16"
 
 [dev-dependencies]
 env_logger = "^0.3.2"
