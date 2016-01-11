@@ -133,6 +133,8 @@ impl<R: Read> Iterator for Events<R> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ParserConfig {
     pub ignore_comments: bool,
+    // TODO: add strict mode
+    //pub strict: bool,
 }
 
 impl ParserConfig {
