@@ -3,6 +3,7 @@ name = "fbx_direct"
 version = "0.4.0"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
+documentation = "http://l1048576.github.io/fbx_direct/doc/fbx_direct/index.html"
 homepage = "https://github.com/l1048576/fbx_direct"
 repository = "https://github.com/l1048576/fbx_direct"
 readme = "README.adoc"
