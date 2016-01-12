@@ -32,7 +32,7 @@ additional terms or conditions.
 
 == Release Notes
 
-=== New
+=== 0.4.0
 Changes and deprecations::
     Relicenced under MIT and Apache-2.0;;
         See link:https://github.com/l1048576/fbx_direct/issues/1[Issue #1].
