@@ -1,4 +1,5 @@
 //! Contains common types for reader and writer.
+extern crate rustc_serialize;
 
 use std::borrow::Cow;
 
@@ -300,16 +301,36 @@ impl OwnedProperty {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self) -> Option<&[u8]> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
         match *self {
-            OwnedProperty::Binary(ref v) => Some(&v[..]),
+            OwnedProperty::String(ref v) => {
+                //use self::rustc_serialize::base64::{FromBase64, STANDARD};
+                use self::rustc_serialize::base64::FromBase64;
+                // In ASCII FBX, binary value is represented as base64-encoded string.
+                if from_string {
+                    v.as_bytes().from_base64().ok().map(Cow::Owned)
+                } else {
+                    None
+                }
+            },
+            OwnedProperty::Binary(ref v) => Some(Cow::Borrowed(&v[..])),
             _ => None,
         }
     }
 
     /// Get binary value if possible.
-    pub fn into_binary(self) -> Option<Vec<u8>> {
+    pub fn into_binary(self, from_string: bool) -> Option<Vec<u8>> {
         match self {
+            OwnedProperty::String(v) => {
+                //use self::rustc_serialize::base64::{FromBase64, STANDARD};
+                use self::rustc_serialize::base64::FromBase64;
+                // In ASCII FBX, binary value is represented as base64-encoded string.
+                if from_string {
+                    v.as_bytes().from_base64().ok()
+                } else {
+                    None
+                }
+            },
             OwnedProperty::Binary(v) => Some(v),
             _ => None,
         }
@@ -482,9 +503,19 @@ impl<'a> Property<'a> {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self) -> Option<&[u8]> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
         match *self {
-            Property::Binary(v) => Some(v),
+            Property::String(v) => {
+                //use self::rustc_serialize::base64::{FromBase64, STANDARD};
+                use self::rustc_serialize::base64::FromBase64;
+                // In ASCII FBX, binary value is represented as base64-encoded string.
+                if from_string {
+                    v.as_bytes().from_base64().ok().map(Cow::Owned)
+                } else {
+                    None
+                }
+            },
+            Property::Binary(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
     }

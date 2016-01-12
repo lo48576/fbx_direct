@@ -16,4 +16,60 @@ This library currently contains only Binary FBX event reader and writer like xml
 - [x] ASCII FBX writer
 
 == License
-This software is released under the MIT License, see LICENSE.txt.
+
+Licensed under either of
+
+- Apache License, Version 2.0, (link:LICENSE-APACHE[] or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license (link:LICENSE-MIT[] or http://opensource.org/licenses/MIT)
+
+at your option.
+
+=== Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
+additional terms or conditions.
+
+== Release Notes
+
+=== New
+Changes and deprecations::
+    Relicenced under MIT and Apache-2.0;;
+        See link:https://github.com/l1048576/fbx_direct/issues/1[Issue #1].
+    Changed interface of `common::{OwnedProperty,Property}::{get,into}_binary()`;;
+        Now their type is `fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>>` and
+        `fn into_binary(&self, from_string: bool) -> Option<Vec<u8>>`.
+        Now the function tries to convert string to binary when `from_string` is `true`, and doesn't try when `false`.
+
+=== 0.3.0
+New feature and improvements::
+    ASCII FBX writer became available;;
+        Note that some feature (such as ascii representation of node property of boolean vector)
+        is unconfirmed and might be wrong.
+    `writer::EmitterConfig::fbx_version` member variable is added;;
+        This is used to specify FBX version to export.
+        Default value is `None`.
+        When `None`, it is automatically decided by writer if necessary.
+        When it cannot be automatically decided, error will be emitted.
+Changes and deprecations::
+    `writer::Error::InvalidOption` variant is added;;
+        When writer is configured with invalid/inconsistent option or inconsistent writer event
+        (e.g. event specifying different version as writer config) is given, this error will be emitted.
+
+=== 0.2.2
+New feature and improvements::
+    `common::OwnedProperty::into_{bool,i16,i32,i64,f32,f64,vec_bool,vec_i32,vec_i64,vec_f32,vec_f64,string,binary}` is added;;
+        `get_foo` converts value safely but not consuming self.
+        `into_foo` converts value safely consuming self.
+        When both can be used, `into_foo` is preferred because it is more efficient.
+
+=== 0.2.1
+New feature and improvements::
+    `common::OwnedProperty::get_{bool,i16,i32,i64,f32,f64,vec_bool,vec_i32,vec_i64,vec_f32,vec_f64,string,binary}` is added;;
+        `get_foo` converts value safely but not consuming self.
+        Note that it cannot be used to conversion with loss of information (such as `i64` to `i32` or `f32` to `i64`),
+        but conversion between `f32` and `f64` is exceptionally allowed.
+
+=== 0.2.0
+- Binary FBX writer became available.
+- Major changes.
