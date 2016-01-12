@@ -32,6 +32,15 @@ additional terms or conditions.
 
 == Release Notes
 
+=== New
+Changes and deprecations::
+    Relicenced under MIT and Apache-2.0;;
+        See link:https://github.com/l1048576/fbx_direct/issues/1[Issue #1].
+    Changed interface of `common::{OwnedProperty,Property}::{get,into}_binary()`;;
+        Now their type is `fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>>` and
+        `fn into_binary(&self, from_string: bool) -> Option<Vec<u8>>`.
+        Now the function tries to convert string to binary when `from_string` is `true`, and doesn't try when `false`.
+
 === 0.3.0
 New feature and improvements::
     ASCII FBX writer became available;;
