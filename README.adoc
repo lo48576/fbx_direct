@@ -29,3 +29,38 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
 additional terms or conditions.
+
+== Release Notes
+
+=== 0.3.0
+New feature and improvements::
+    ASCII FBX writer became available;;
+        Note that some feature (such as ascii representation of node property of boolean vector)
+        is unconfirmed and might be wrong.
+    `writer::EmitterConfig::fbx_version` member variable is added;;
+        This is used to specify FBX version to export.
+        Default value is `None`.
+        When `None`, it is automatically decided by writer if necessary.
+        When it cannot be automatically decided, error will be emitted.
+Changes and deprecations::
+    `writer::Error::InvalidOption` variant is added;;
+        When writer is configured with invalid/inconsistent option or inconsistent writer event
+        (e.g. event specifying different version as writer config) is given, this error will be emitted.
+
+=== 0.2.2
+New feature and improvements::
+    `common::OwnedProperty::into_{bool,i16,i32,i64,f32,f64,vec_bool,vec_i32,vec_i64,vec_f32,vec_f64,string,binary}` is added;;
+        `get_foo` converts value safely but not consuming self.
+        `into_foo` converts value safely consuming self.
+        When both can be used, `into_foo` is preferred because it is more efficient.
+
+=== 0.2.1
+New feature and improvements::
+    `common::OwnedProperty::get_{bool,i16,i32,i64,f32,f64,vec_bool,vec_i32,vec_i64,vec_f32,vec_f64,string,binary}` is added;;
+        `get_foo` converts value safely but not consuming self.
+        Note that it cannot be used to conversion with loss of information (such as `i64` to `i32` or `f32` to `i64`),
+        but conversion between `f32` and `f64` is exceptionally allowed.
+
+=== 0.2.0
+- Binary FBX writer became available.
+- Major changes.
