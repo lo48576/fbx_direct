@@ -5,6 +5,9 @@ It is heavily inspired by link:https://en.wikipedia.org/wiki/StAX[Java Streaming
 
 This library currently contains only Binary FBX event reader and writer like xml-rs.
 
+== Documentation
+link:http://l1048576.github.io/fbx_direct/doc/fbx_direct/index.html[link to the documentation]
+
 == TODO
 
 .reader
