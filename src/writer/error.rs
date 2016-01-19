@@ -14,6 +14,8 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 pub enum Error {
     /// I/O error.
     Io(io::Error),
+    /// Data size is too large.
+    DataTooLarge(String),
     /// `EndNode` event is given but there's no node to close.
     ExtraEndNode,
     /// FBX not started but an event other than `StartFbx` is given.
@@ -34,6 +36,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Io(ref err) => write!(f, "I/O error: {}", err),
+            Error::DataTooLarge(ref err) => write!(f, "Data size is too large: {}", err),
             Error::ExtraEndNode => write!(f, "Extra end-of-node marker detected"),
             Error::FbxNotStarted => write!(f, "An writer event is given, but FBX data is not started yet"),
             Error::FbxAlreadyStarted => write!(f, "Got a writer event to start FBX, but FBX data is already started"),
@@ -49,6 +52,7 @@ impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
             Error::Io(ref err) => err.description(),
+            Error::DataTooLarge(_) => "Data size is too large",
             Error::ExtraEndNode => "Extra end-of-node marker detected",
             Error::FbxNotStarted => "An writer event is given, but FBX data is not started yet",
             Error::FbxAlreadyStarted => "Got a writer event to start FBX, but FBX data is already started",
