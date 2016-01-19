@@ -40,6 +40,16 @@ macro_rules! try_read_le_u32 {
     })
 }
 
+macro_rules! try_read_le_u64 {
+    ($pos:expr, $reader:expr) => ({
+        use $crate::reader::parser::macros::byteorder;
+        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        let val = try_with_pos!($pos, $reader.read_u64::<byteorder::LittleEndian>());
+        $pos += 8;
+        val
+    })
+}
+
 macro_rules! try_read_le_i16 {
     ($pos:expr, $reader:expr) => ({
         use $crate::reader::parser::macros::byteorder;
