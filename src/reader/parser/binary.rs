@@ -284,7 +284,7 @@ impl NodeRecordHeader {
 
 /// A header of a property of array type.
 #[derive(Debug, Copy, Clone)]
-pub struct PropertyArrayHeader {
+struct PropertyArrayHeader {
     /// Number of values in the array, *NOT byte size*.
     array_length: u32,
     /// Denotes whether data in stream is plain, or what algorithm it is compressed by.
