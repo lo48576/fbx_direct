@@ -38,7 +38,7 @@ additional terms or conditions.
 
 == Release Notes
 
-=== New
+=== 0.5.0
 Changes and deprecations::
     `writer::Error::DataTooLarge` variant is added;;
         When a data size (number of elements, byte offset, byte size, etc.) is too large for the format of writing file,
