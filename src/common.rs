@@ -304,7 +304,6 @@ impl OwnedProperty {
     pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
         match *self {
             OwnedProperty::String(ref v) => {
-                //use self::rustc_serialize::base64::{FromBase64, STANDARD};
                 use self::rustc_serialize::base64::FromBase64;
                 // In ASCII FBX, binary value is represented as base64-encoded string.
                 if from_string {
@@ -322,7 +321,6 @@ impl OwnedProperty {
     pub fn into_binary(self, from_string: bool) -> Option<Vec<u8>> {
         match self {
             OwnedProperty::String(v) => {
-                //use self::rustc_serialize::base64::{FromBase64, STANDARD};
                 use self::rustc_serialize::base64::FromBase64;
                 // In ASCII FBX, binary value is represented as base64-encoded string.
                 if from_string {
