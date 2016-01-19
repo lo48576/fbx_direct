@@ -13,7 +13,7 @@ use super::CommonState;
 #[derive(Debug, Clone)]
 pub struct BinaryParser {
     version: u32,
-    end_offset_stack: Vec<u32>,
+    end_offset_stack: Vec<u64>,
 }
 
 impl BinaryParser {
@@ -36,7 +36,7 @@ impl BinaryParser {
         }
 
         // Read a node record header.
-        let node_record_header = try!(NodeRecordHeader::read(reader, &mut common.pos));
+        let node_record_header = try!(NodeRecordHeader::read(reader, &mut common.pos, self));
         if node_record_header.is_null_record() {
             // End of a node.
             return if let Some(expected_pos) = self.end_offset_stack.pop() {
@@ -237,21 +237,33 @@ impl BinaryParser {
 #[derive(Debug, Copy, Clone)]
 struct NodeRecordHeader {
     /// Position of the end of the node.
-    end_offset: u32,
+    end_offset: u64,
     /// Number of the properties the node has.
-    num_properties: u32,
+    num_properties: u64,
     /// Byte size of properties of the node in the FBX stream.
-    property_list_len: u32,
+    property_list_len: u64,
     /// Byte size of the node name.
     name_len: u8,
 }
 
 impl NodeRecordHeader {
     /// Constructs `NodeRecordHeader` from the given stream.
-    pub fn read<R: Read>(reader: &mut R, pos: &mut u64) -> Result<Self> {
-        let end_offset = try_read_le_u32!(*pos, reader);
-        let num_properties = try_read_le_u32!(*pos, reader);
-        let property_list_len = try_read_le_u32!(*pos, reader);
+    pub fn read<R: Read>(reader: &mut R, pos: &mut u64, context: &BinaryParser) -> Result<Self> {
+        let end_offset = if context.version < 7500 {
+            try_read_le_u32!(*pos, reader) as u64
+        } else {
+            try_read_le_u64!(*pos, reader)
+        };
+        let num_properties = if context.version < 7500 {
+            try_read_le_u32!(*pos, reader) as u64
+        } else {
+            try_read_le_u64!(*pos, reader)
+        };
+        let property_list_len = if context.version < 7500 {
+            try_read_le_u32!(*pos, reader) as u64
+        } else {
+            try_read_le_u64!(*pos, reader)
+        };
         let name_len = try_read_le_u8!(*pos, reader);
         Ok(NodeRecordHeader {
             end_offset: end_offset,
