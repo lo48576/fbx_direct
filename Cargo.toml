@@ -12,9 +12,9 @@ license = "MIT OR Apache-2.0"
 description = "Low-level FBX library"
 
 [dependencies]
-log = "^0.3.4"
+log = "^0.3.5"
 byteorder = "^0.4.2"
-flate2 = "^0.2.11"
+flate2 = "^0.2.12"
 rustc-serialize = "^0.3.16"
 
 [dev-dependencies]
