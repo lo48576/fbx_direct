@@ -3,7 +3,10 @@
 fbx_direct is an FBX library for Rust programming language.
 It is heavily inspired by link:https://en.wikipedia.org/wiki/StAX[Java Streaming API for XML (StAX)] and link:https://github.com/netvl/xml-rs[xml-rs].
 
-This library currently contains only Binary FBX event reader and writer like xml-rs.
+This library currently contains event reader for Binary FBX and event writer for ASCII/Binary FBX like xml-rs.
+ASCII FBX reader is not yet supported.
+
+This library supports FBX 7.4 or later.
 
 == Documentation
 link:http://l1048576.github.io/fbx_direct/doc/fbx_direct/index.html[link to the documentation]
@@ -34,6 +37,17 @@ for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 additional terms or conditions.
 
 == Release Notes
+
+=== New
+Changes and deprecations::
+    `writer::Error::DataTooLarge` variant is added;;
+        When a data size (number of elements, byte offset, byte size, etc.) is too large for the format of writing file,
+        this error will be emitted.
+New feature and improvements::
+    Support FBX 7.5;;
+        From FBX 7.5.0, specification of binary format changed a little.
+        Now, binary reader/writer supports it.
+        Of course, FBX 7.4 is also supported.
 
 === 0.4.0
 Changes and deprecations::

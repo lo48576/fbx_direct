@@ -18,11 +18,17 @@ fn indent(size: usize) -> String {
 
 #[test]
 fn binary_export_import() {
-    use std::io::Write;
-
     env_logger::init().unwrap();
 
-    let filename = "tests/assets/blender_2_72b_default.fbx";
+    // FBX 7.4
+    binary_export_import_file("tests/assets/blender_2_72b_default-fbx7400.fbx");
+    // FBX 7.5
+    binary_export_import_file("tests/assets/fbxsdk-2016.1.2-empty-binary-fbx7500.fbx");
+}
+
+#[cfg(test)]
+fn binary_export_import_file(filename: &str) {
+    use std::io::Write;
 
     let mut exported1 = std::io::Cursor::new(Vec::<u8>::new());
     {
