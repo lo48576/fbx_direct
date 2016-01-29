@@ -18,6 +18,23 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
     // TODO: I've never seen vector of booleans (in binary or ascii FBX)... How should it be?
     // TODO: How will it be when other properties follows a property of array value?
     // TODO: Implement folding of large array.
+    macro_rules! generic_vec_print {
+        ($vec:ident) => ({
+            try!(sink.write_fmt(format_args!("*{} {{\n", $vec.len())));
+            try!(indent(sink, prop_depth));
+            try!(sink.write(b"a: "));
+            let mut iter = $vec.iter();
+            if let Some(&v) = iter.next() {
+                try!(sink.write_fmt(format_args!("{}", v)));
+            }
+            for &v in iter {
+                try!(sink.write_fmt(format_args!(",{}", v)));
+            }
+            try!(sink.write(b"\n"));
+            try!(indent(sink, prop_depth-1));
+            try!(sink.write(b"}"));
+        })
+    }
     match *property {
         Property::Bool(false) => {
             try!(sink.write(b"T"));
@@ -59,64 +76,16 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
             try!(sink.write(b"}"));
         },
         Property::VecI32(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecI64(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecF32(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecF64(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::String(v) => {
             try!(sink.write(b"\""));
@@ -183,12 +152,10 @@ impl AsciiEmitter {
 
     pub fn emit_start_node<W: Write>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
         if let Some((prop_exist, child_exist)) = self.prop_child_existence.pop() {
+            // Print brace for *parent node*, if the current node is the first child.
+            // (i.e. `child_exist` of parent is `false`.)
             if !child_exist {
-                if prop_exist {
-                    try!(sink.write(b"\n"));
-                } else {
-                    try!(sink.write(b" {\n"));
-                }
+                try!(sink.write(b" {\n"));
             }
             self.prop_child_existence.push((prop_exist, true));
         }
@@ -199,11 +166,9 @@ impl AsciiEmitter {
         let prop_depth = self.prop_child_existence.len();
         let mut prop_iter = properties.iter();
         if let Some(prop) = prop_iter.next() {
-            //try!(sink.write_fmt(format_args!("{:?}", prop)));
             try!(print_property(sink, prop, prop_depth));
         }
         for prop in prop_iter {
-            //try!(sink.write_fmt(format_args!(", {:?}", prop)));
             try!(sink.write(b", "));
             try!(print_property(sink, prop, prop_depth));
         }
@@ -214,6 +179,9 @@ impl AsciiEmitter {
     pub fn emit_end_node<W: Write>(&mut self, sink: &mut W) -> Result<()> {
         let (prop_exist, child_exist) = self.prop_child_existence.pop().unwrap();
         if !prop_exist || child_exist {
+            if !prop_exist && !child_exist {
+                try!(sink.write(b" {\n"));
+            }
             try!(indent(sink, self.prop_child_existence.len()));
             try!(sink.write(b"}\n"));
         } else {
