@@ -18,6 +18,23 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
     // TODO: I've never seen vector of booleans (in binary or ascii FBX)... How should it be?
     // TODO: How will it be when other properties follows a property of array value?
     // TODO: Implement folding of large array.
+    macro_rules! generic_vec_print {
+        ($vec:ident) => ({
+            try!(sink.write_fmt(format_args!("*{} {{\n", $vec.len())));
+            try!(indent(sink, prop_depth));
+            try!(sink.write(b"a: "));
+            let mut iter = $vec.iter();
+            if let Some(&v) = iter.next() {
+                try!(sink.write_fmt(format_args!("{}", v)));
+            }
+            for &v in iter {
+                try!(sink.write_fmt(format_args!(",{}", v)));
+            }
+            try!(sink.write(b"\n"));
+            try!(indent(sink, prop_depth-1));
+            try!(sink.write(b"}"));
+        })
+    }
     match *property {
         Property::Bool(false) => {
             try!(sink.write(b"T"));
@@ -59,64 +76,16 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
             try!(sink.write(b"}"));
         },
         Property::VecI32(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecI64(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecF32(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::VecF64(vec) => {
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
-            let mut iter = vec.iter();
-            if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
-            }
-            for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
-            }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            generic_vec_print!(vec);
         },
         Property::String(v) => {
             try!(sink.write(b"\""));
