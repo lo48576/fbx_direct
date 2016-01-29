@@ -1,6 +1,6 @@
 [package]
 name = "fbx_direct"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 
 documentation = "http://l1048576.github.io/fbx_direct/doc/fbx_direct/index.html"
@@ -14,7 +14,7 @@ description = "Low-level FBX library"
 [dependencies]
 log = "^0.3.5"
 byteorder = "^0.4.2"
-flate2 = "^0.2.12"
+flate2 = "^0.2.13"
 rustc-serialize = "^0.3.16"
 
 [dev-dependencies]
