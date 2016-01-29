@@ -197,11 +197,9 @@ impl AsciiEmitter {
         let prop_depth = self.prop_child_existence.len();
         let mut prop_iter = properties.iter();
         if let Some(prop) = prop_iter.next() {
-            //try!(sink.write_fmt(format_args!("{:?}", prop)));
             try!(print_property(sink, prop, prop_depth));
         }
         for prop in prop_iter {
-            //try!(sink.write_fmt(format_args!(", {:?}", prop)));
             try!(sink.write(b", "));
             try!(print_property(sink, prop, prop_depth));
         }
