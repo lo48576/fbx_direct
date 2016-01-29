@@ -183,12 +183,10 @@ impl AsciiEmitter {
 
     pub fn emit_start_node<W: Write>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
         if let Some((prop_exist, child_exist)) = self.prop_child_existence.pop() {
+            // Print brace for *parent node*, if the current node is the first child.
+            // (i.e. `child_exist` of parent is `false`.)
             if !child_exist {
-                if prop_exist {
-                    try!(sink.write(b"\n"));
-                } else {
-                    try!(sink.write(b" {\n"));
-                }
+                try!(sink.write(b" {\n"));
             }
             self.prop_child_existence.push((prop_exist, true));
         }
@@ -214,6 +212,9 @@ impl AsciiEmitter {
     pub fn emit_end_node<W: Write>(&mut self, sink: &mut W) -> Result<()> {
         let (prop_exist, child_exist) = self.prop_child_existence.pop().unwrap();
         if !prop_exist || child_exist {
+            if !prop_exist && !child_exist {
+                try!(sink.write(b" {\n"));
+            }
             try!(indent(sink, self.prop_child_existence.len()));
             try!(sink.write(b"}\n"));
         } else {
