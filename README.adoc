@@ -38,6 +38,12 @@ additional terms or conditions.
 
 == Release Notes
 
+=== New
+Fixes::
+    Invalid left-brace '{' emission of FBX ascii writer;;
+        Sometimes '{' is missing in output data.
+        Now this is fixed.
+
 === 0.5.0
 Changes and deprecations::
     `writer::Error::DataTooLarge` variant is added;;
