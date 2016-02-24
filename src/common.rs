@@ -77,8 +77,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_bool(self) -> Option<bool> {
-        self.get_bool()
+    pub fn into_bool(self) -> Result<bool, Self> {
+        match self {
+            OwnedProperty::Bool(v) => Ok(v),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -95,8 +98,12 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_i16(self) -> Option<i16> {
-        self.get_i16()
+    pub fn into_i16(self) -> Result<i16, Self> {
+        match self {
+            OwnedProperty::Bool(v) => Ok(if v { 1 } else { 0 }),
+            OwnedProperty::I16(v) => Ok(v),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -114,8 +121,13 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_i32(self) -> Option<i32> {
-        self.get_i32()
+    pub fn into_i32(self) -> Result<i32, Self> {
+        match self {
+            OwnedProperty::Bool(v) => Ok(if v { 1 } else { 0 }),
+            OwnedProperty::I16(v) => Ok(v as i32),
+            OwnedProperty::I32(v) => Ok(v),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -134,8 +146,14 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_i64(self) -> Option<i64> {
-        self.get_i64()
+    pub fn into_i64(self) -> Result<i64, Self> {
+        match self {
+            OwnedProperty::Bool(v) => Ok(if v { 1 } else { 0 }),
+            OwnedProperty::I16(v) => Ok(v as i64),
+            OwnedProperty::I32(v) => Ok(v as i64),
+            OwnedProperty::I64(v) => Ok(v),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -152,8 +170,12 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_f32(self) -> Option<f32> {
-        self.get_f32()
+    pub fn into_f32(self) -> Result<f32, Self> {
+        match self {
+            OwnedProperty::F32(v) => Ok(v),
+            OwnedProperty::F64(v) => Ok(v as f32),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -170,8 +192,12 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_f64(self) -> Option<f64> {
-        self.get_f64()
+    pub fn into_f64(self) -> Result<f64, Self> {
+        match self {
+            OwnedProperty::F32(v) => Ok(v as f64),
+            OwnedProperty::F64(v) => Ok(v),
+            v => Err(v),
+        }
     }
 
     /// Safe conversion.
@@ -187,10 +213,10 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_vec_bool(self) -> Option<Vec<bool>> {
+    pub fn into_vec_bool(self) -> Result<Vec<bool>, Self> {
         match self {
-            OwnedProperty::VecBool(v) => Some(v),
-            _ => None,
+            OwnedProperty::VecBool(v) => Ok(v),
+            v => Err(v),
         }
     }
 
@@ -208,11 +234,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_vec_i32(self) -> Option<Vec<i32>> {
+    pub fn into_vec_i32(self) -> Result<Vec<i32>, Self> {
         match self {
-            OwnedProperty::VecBool(v) => Some(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
-            OwnedProperty::VecI32(v) => Some(v),
-            _ => None,
+            OwnedProperty::VecBool(v) => Ok(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
+            OwnedProperty::VecI32(v) => Ok(v),
+            v => Err(v),
         }
     }
 
@@ -231,12 +257,12 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_vec_i64(self) -> Option<Vec<i64>> {
+    pub fn into_vec_i64(self) -> Result<Vec<i64>, Self> {
         match self {
-            OwnedProperty::VecBool(v) => Some(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
-            OwnedProperty::VecI32(v) => Some(v.into_iter().map(|v| v as i64).collect()),
-            OwnedProperty::VecI64(v) => Some(v),
-            _ => None,
+            OwnedProperty::VecBool(v) => Ok(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
+            OwnedProperty::VecI32(v) => Ok(v.into_iter().map(|v| v as i64).collect()),
+            OwnedProperty::VecI64(v) => Ok(v),
+            v => Err(v),
         }
     }
 
@@ -254,11 +280,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_vec_f32(self) -> Option<Vec<f32>> {
+    pub fn into_vec_f32(self) -> Result<Vec<f32>, Self> {
         match self {
-            OwnedProperty::VecF32(v) => Some(v),
-            OwnedProperty::VecF64(v) => Some(v.into_iter().map(|v| v as f32).collect()),
-            _ => None,
+            OwnedProperty::VecF32(v) => Ok(v),
+            OwnedProperty::VecF64(v) => Ok(v.into_iter().map(|v| v as f32).collect()),
+            v => Err(v),
         }
     }
 
@@ -276,11 +302,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn into_vec_f64(self) -> Option<Vec<f64>> {
+    pub fn into_vec_f64(self) -> Result<Vec<f64>, Self> {
         match self {
-            OwnedProperty::VecF32(v) => Some(v.into_iter().map(|v| v as f64).collect()),
-            OwnedProperty::VecF64(v) => Some(v),
-            _ => None,
+            OwnedProperty::VecF32(v) => Ok(v.into_iter().map(|v| v as f64).collect()),
+            OwnedProperty::VecF64(v) => Ok(v),
+            v => Err(v),
         }
     }
 
@@ -293,10 +319,10 @@ impl OwnedProperty {
     }
 
     /// Get string value if possible.
-    pub fn into_string(self) -> Option<String> {
+    pub fn into_string(self) -> Result<String, Self> {
         match self {
-            OwnedProperty::String(v) => Some(v),
-            _ => None,
+            OwnedProperty::String(v) => Ok(v),
+            v => Err(v),
         }
     }
 
@@ -318,19 +344,19 @@ impl OwnedProperty {
     }
 
     /// Get binary value if possible.
-    pub fn into_binary(self, from_string: bool) -> Option<Vec<u8>> {
+    pub fn into_binary(self, from_string: bool) -> Result<Vec<u8>, Self> {
         match self {
             OwnedProperty::String(v) => {
                 use self::rustc_serialize::base64::FromBase64;
                 // In ASCII FBX, binary value is represented as base64-encoded string.
                 if from_string {
-                    v.as_bytes().from_base64().ok()
+                    v.from_base64().or(Err(OwnedProperty::String(v)))
                 } else {
-                    None
+                    Err(OwnedProperty::String(v))
                 }
             },
-            OwnedProperty::Binary(v) => Some(v),
-            _ => None,
+            OwnedProperty::Binary(v) => Ok(v),
+            v => Err(v),
         }
     }
 }
