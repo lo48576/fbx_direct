@@ -38,6 +38,12 @@ additional terms or conditions.
 
 == Release Notes
 
+=== New
+Changes and deprecations::
+    Changed interface of `common::OwnedProperty::into_*()`;;
+        Their return types are changed from `Option<Foo>` to `Result<Foo, OwnedProperty>`.
+        Now they return `Err(self)` on conversion failure.
+
 === 0.5.1
 Fixes::
     Invalid left-brace '{' emission of FBX ascii writer;;
