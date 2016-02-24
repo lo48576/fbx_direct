@@ -3,7 +3,7 @@ extern crate rustc_serialize;
 
 use std::borrow::Cow;
 
-/// Format of FBX data
+/// Format of FBX data.
 #[derive(Debug, Clone, Copy)]
 pub enum FbxFormatType {
     /// Binary FBX, with version (for example, `7400` for FBX 7.4).
