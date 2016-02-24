@@ -38,7 +38,7 @@ additional terms or conditions.
 
 == Release Notes
 
-=== New
+=== 0.6.0
 Changes and deprecations::
     Changed interface of `common::OwnedProperty::into_*()`;;
         Their return types are changed from `Option<Foo>` to `Result<Foo, OwnedProperty>`.
