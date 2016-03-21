@@ -1,7 +1,5 @@
 //! Contains result and error type for FBX reader.
 
-extern crate byteorder;
-
 use std::io;
 use std::string;
 use std::str;
@@ -113,16 +111,6 @@ impl From<string::FromUtf8Error> for ErrorKind {
 
 impl From<io::Error> for ErrorKind {
     fn from(err: io::Error) -> ErrorKind {
-        // TODO: `io::Error::UnexpectedEof` should be converted to `ErrorKind::UnexpectedEof`.
         ErrorKind::Io(err)
-    }
-}
-
-impl From<byteorder::Error> for ErrorKind {
-    fn from(err: byteorder::Error) -> ErrorKind {
-        match err {
-            byteorder::Error::UnexpectedEOF => ErrorKind::UnexpectedEof,
-            byteorder::Error::Io(err) => ErrorKind::Io(err),
-        }
     }
 }

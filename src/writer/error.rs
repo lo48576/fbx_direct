@@ -1,10 +1,9 @@
 //! Contains result and error type for FBX reader.
 
-extern crate byteorder;
-
 use std::io;
 use std::fmt;
 use std::error;
+
 
 /// A specialized `std::result::Result` type for FBX exporting.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -86,14 +85,5 @@ impl Clone for Error {
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Error {
         Error::Io(err)
-    }
-}
-
-impl From<byteorder::Error> for Error {
-    fn from(err: byteorder::Error) -> Error {
-        match err {
-            byteorder::Error::UnexpectedEOF => panic!("byteorder::Error::UnexpectedEOF shouldn't happen on write"),
-            byteorder::Error::Io(err) => Error::Io(err),
-        }
     }
 }
