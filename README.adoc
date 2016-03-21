@@ -38,6 +38,11 @@ additional terms or conditions.
 
 == Release Notes
 
+=== 0.6.1
+New feature and improvements::
+    Bump `byteorder` crate version;;
+        0.5 -> 0.6
+
 === 0.6.0
 Changes and deprecations::
     Changed interface of `common::OwnedProperty::into_*()`;;
