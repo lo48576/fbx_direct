@@ -2,8 +2,6 @@
 
 #![macro_use]
 
-extern crate byteorder;
-
 /// Unwrap result if `Ok`, returns `reader::Error` if `Err`.
 ///
 /// `try!` converts argument into error type of caller's `Result` return type,
@@ -23,7 +21,7 @@ macro_rules! try_with_pos {
 
 macro_rules! try_read_le_u8 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_u8());
         $pos += 1;
         val
@@ -32,8 +30,8 @@ macro_rules! try_read_le_u8 {
 
 macro_rules! try_read_le_u32 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_u32::<byteorder::LittleEndian>());
         $pos += 4;
         val
@@ -42,8 +40,8 @@ macro_rules! try_read_le_u32 {
 
 macro_rules! try_read_le_u64 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_u64::<byteorder::LittleEndian>());
         $pos += 8;
         val
@@ -52,8 +50,8 @@ macro_rules! try_read_le_u64 {
 
 macro_rules! try_read_le_i16 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_i16::<byteorder::LittleEndian>());
         $pos += 2;
         val
@@ -62,8 +60,8 @@ macro_rules! try_read_le_i16 {
 
 macro_rules! try_read_le_i32 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_i32::<byteorder::LittleEndian>());
         $pos += 4;
         val
@@ -72,8 +70,8 @@ macro_rules! try_read_le_i32 {
 
 macro_rules! try_read_le_i64 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_i64::<byteorder::LittleEndian>());
         $pos += 8;
         val
@@ -82,8 +80,8 @@ macro_rules! try_read_le_i64 {
 
 macro_rules! try_read_le_f32 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_f32::<byteorder::LittleEndian>());
         $pos += 4;
         val
@@ -92,8 +90,8 @@ macro_rules! try_read_le_f32 {
 
 macro_rules! try_read_le_f64 {
     ($pos:expr, $reader:expr) => ({
-        use $crate::reader::parser::macros::byteorder;
-        use $crate::reader::parser::macros::byteorder::ReadBytesExt;
+        use $crate::byteorder;
+        use $crate::byteorder::ReadBytesExt;
         let val = try_with_pos!($pos, $reader.read_f64::<byteorder::LittleEndian>());
         $pos += 8;
         val

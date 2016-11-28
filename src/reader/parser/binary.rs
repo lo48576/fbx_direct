@@ -1,6 +1,5 @@
 //! Contains implementation of Binary FBX parser.
 
-extern crate byteorder;
 extern crate flate2;
 
 use std::io::Read;
@@ -181,7 +180,7 @@ impl BinaryParser {
     /// Read a property value of array type from plain (uncompressed) stream.
     fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, abs_pos: u64, type_code: char,
                                                             num_elements: u32) -> Result<(OwnedProperty, u64)> {
-        use self::byteorder::{ReadBytesExt, LittleEndian};
+        use byteorder::{ReadBytesExt, LittleEndian};
         Ok(match type_code {
             // Array of 4 byte single-precision IEEE 754 floating-point number.
             'f' => {

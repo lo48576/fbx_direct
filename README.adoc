@@ -38,6 +38,9 @@ additional terms or conditions.
 
 == Release Notes
 
+=== 0.6.2
+No interface changes.
+
 === 0.6.1
 New feature and improvements::
     Bump `byteorder` crate version;;
