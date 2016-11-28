@@ -8,7 +8,7 @@ homepage = "https://github.com/l1048576/fbx_direct"
 repository = "https://github.com/l1048576/fbx_direct"
 readme = "README.adoc"
 keywords = ["fbx", "graphics", "3d", "model"]
-license = "MIT OR Apache-2.0"
+license = "MIT / Apache-2.0"
 description = "Low-level FBX library"
 
 [dependencies]
