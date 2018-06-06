@@ -12,10 +12,10 @@ license = "MIT / Apache-2.0"
 description = "Low-level FBX library"
 
 [dependencies]
-log = "^0.3.5"
-byteorder = "^0.5"
-flate2 = "^0.2.13"
-rustc-serialize = "^0.3.16"
+log = "0.4.2"
+byteorder = "1.2.3"
+flate2 = "1.0.1"
+rustc-serialize = "0.3.24"
 
 [dev-dependencies]
-env_logger = "^0.3.2"
+env_logger = "0.5.10"
