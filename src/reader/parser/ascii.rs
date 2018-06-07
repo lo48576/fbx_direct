@@ -13,13 +13,13 @@ pub struct AsciiParser {
 
 impl AsciiParser {
     /// Constructs ASCII FBX parser with initial state of internal buffer.
-    pub fn new(buffer: String) -> Self {
+    pub(crate) fn new(buffer: String) -> Self {
         AsciiParser {
             buffer: buffer,
         }
     }
 
-    pub fn next<R: Read>(&mut self, _reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
+    pub(crate) fn next<R: Read>(&mut self, _reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
         Err(Error::new(common.pos, ErrorKind::Unimplemented("Parser for ASCII FBX format is not implemented yet".to_string())))
     }
 }
