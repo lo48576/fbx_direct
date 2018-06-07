@@ -38,6 +38,11 @@ additional terms or conditions.
 
 == Release Notes
 
+=== 0.6.3
+New feature and improvements::
+    Bump many dependencies;;
+        link:https://github.com/lo48576/fbx_direct/pull/2[#2], thanks @VictorKoenders
+
 === 0.6.2
 No interface changes.
 
