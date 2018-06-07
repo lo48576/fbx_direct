@@ -18,7 +18,7 @@ fn indent(size: usize) -> String {
 
 #[test]
 fn binary_export_import() {
-    env_logger::init().unwrap();
+    env_logger::init();
 
     // FBX 7.4
     binary_export_import_file("tests/assets/blender_2_72b_default-fbx7400.fbx");
