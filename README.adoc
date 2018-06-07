@@ -9,7 +9,7 @@ ASCII FBX reader is not yet supported.
 This library supports FBX 7.4 or later.
 
 == Documentation
-link:http://l1048576.github.io/fbx_direct/doc/fbx_direct/index.html[link to the documentation]
+link:https://docs.rs/fbx_direct/[link to the documentation]
 
 == TODO
 
@@ -37,6 +37,11 @@ for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 additional terms or conditions.
 
 == Release Notes
+
+=== 0.6.3
+New feature and improvements::
+    Bump many dependencies;;
+        link:https://github.com/lo48576/fbx_direct/pull/2[#2], thanks @VictorKoenders
 
 === 0.6.2
 No interface changes.

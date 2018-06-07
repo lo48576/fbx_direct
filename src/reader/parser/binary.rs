@@ -17,14 +17,14 @@ pub struct BinaryParser {
 
 impl BinaryParser {
     /// Constructs Binary FBX parser with FBX version (which is placed after magic binary).
-    pub fn new(version: u32) -> Self {
+    pub(crate) fn new(version: u32) -> Self {
         BinaryParser {
             version: version,
             end_offset_stack: vec![],
         }
     }
 
-    pub fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
+    pub(crate) fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
         // Check if the previously read node ends here.
         if let Some(&end_pos_top) = self.end_offset_stack.last() {
             if end_pos_top as u64 == common.pos {

@@ -148,7 +148,7 @@ impl BinaryEmitter {
 
                         let vec_start_pos = try!(sink.seek(SeekFrom::Current(0)));
                         {
-                            let mut encoder = flate2::write::ZlibEncoder::new(sink.by_ref(), flate2::Compression::Default);
+                            let mut encoder = flate2::write::ZlibEncoder::new(sink.by_ref(), flate2::Compression::fast());
                             for &v in $vec {
                                 //try!(encoder.write_i32::<LittleEndian>(v));
                                 try!(encoder.$elem_type_writer::<LittleEndian>(v));

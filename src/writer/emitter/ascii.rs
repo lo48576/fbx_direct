@@ -1,7 +1,6 @@
 //! Contains implementation of ASCII FBX emitter.
-extern crate rustc_serialize;
-
 use std::io::Write;
+use base64;
 use writer::error::{Result, Error};
 use common::Property;
 
@@ -109,9 +108,8 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
         },
         Property::Binary(v) => {
             // TODO: Implement folding of long line.
-            use self::rustc_serialize::base64::{ToBase64, STANDARD};
             // base64 conversion.
-            try!(sink.write_fmt(format_args!("\"{}\"", v.to_base64(STANDARD))));
+            try!(sink.write_fmt(format_args!("\"{}\"", base64::encode(v))));
         },
     }
     Ok(())

@@ -13,7 +13,7 @@ fn indent(size: usize) -> String {
 }
 
 fn main() {
-    env_logger::init().unwrap();
+    env_logger::init();
 
     let filename = match std::env::args().nth(1) {
         Some(f) => f,
