@@ -24,7 +24,7 @@ enum ParserState {
 
 /// Common state among all sub parsers.
 #[derive(Debug, Clone)]
-pub struct CommonState {
+pub(crate) struct CommonState {
     /// Position of last successfully read byte.
     pos: u64,
     final_result: Option<Result<FbxEvent>>,
