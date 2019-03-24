@@ -7,8 +7,6 @@
 //! Compare FBX to COLLADA, this crate is XML reader/writer, not COLLADA importer/exporter.
 
 use byteorder;
-#[macro_use]
-extern crate log;
 
 pub use crate::reader::EventReader;
 pub use crate::writer::EventWriter;

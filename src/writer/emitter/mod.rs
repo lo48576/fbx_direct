@@ -6,6 +6,7 @@ use crate::common::FbxFormatType;
 use crate::writer::error::{Error, Result};
 use crate::writer::{EmitterConfig, FbxEvent};
 use std::io::{Seek, Write};
+use log::{error, warn};
 
 mod ascii;
 mod binary;

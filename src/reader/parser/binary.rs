@@ -7,6 +7,7 @@ use crate::common::OwnedProperty;
 use crate::reader::error::{Error, ErrorKind, Result};
 use crate::reader::FbxEvent;
 use std::io::Read;
+use log::warn;
 
 /// A parser for Binary FBX.
 #[derive(Debug, Clone)]

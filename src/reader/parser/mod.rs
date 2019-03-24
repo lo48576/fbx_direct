@@ -6,6 +6,7 @@ use crate::common::FbxFormatType;
 use crate::reader::error::{Error, ErrorKind, Result};
 use crate::reader::{FbxEvent, ParserConfig};
 use std::io::Read;
+use log::{debug, warn};
 
 mod macros;
 

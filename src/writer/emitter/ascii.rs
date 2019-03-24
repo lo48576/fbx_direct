@@ -3,6 +3,7 @@ use crate::common::Property;
 use crate::writer::error::{Error, Result};
 use base64;
 use std::io::Write;
+use log::{error, warn};
 
 fn indent<W: Write>(sink: &mut W, depth: usize) -> Result<()> {
     for _ in 0..depth {
