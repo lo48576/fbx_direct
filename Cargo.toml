@@ -1,6 +1,6 @@
 [package]
 name = "fbx_direct"
-version = "0.6.3"
+version = "0.6.4"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
 edition = "2018"
 
