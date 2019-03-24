@@ -1,6 +1,6 @@
 //! Contains implementation of Binary FBX parser.
 
-extern crate flate2;
+use flate2;
 
 use std::io::Read;
 use crate::reader::error::{Result, Error, ErrorKind};

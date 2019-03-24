@@ -11,7 +11,7 @@ fn indent<W: Write>(sink: &mut W, depth: usize) -> Result<()> {
     Ok(())
 }
 
-fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize) -> Result<()> {
+fn print_property<W: Write>(sink: &mut W, property: &Property<'_>, prop_depth: usize) -> Result<()> {
     assert!(prop_depth > 0);
 
     // TODO: I've never seen vector of booleans (in binary or ascii FBX)... How should it be?
@@ -148,7 +148,7 @@ impl AsciiEmitter {
         Ok(())
     }
 
-    pub fn emit_start_node<W: Write>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
+    pub fn emit_start_node<W: Write>(&mut self, sink: &mut W, name: &str, properties: &[Property<'_>]) -> Result<()> {
         if let Some((prop_exist, child_exist)) = self.prop_child_existence.pop() {
             // Print brace for *parent node*, if the current node is the first child.
             // (i.e. `child_exist` of parent is `false`.)

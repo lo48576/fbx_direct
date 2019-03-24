@@ -32,7 +32,7 @@ pub enum Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Error::Io(ref err) => write!(f, "I/O error: {}", err),
             Error::DataTooLarge(ref err) => write!(f, "Data size is too large: {}", err),
@@ -62,9 +62,9 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
-            Error::Io(ref err) => Some(err as &error::Error),
+            Error::Io(ref err) => Some(err as &dyn error::Error),
             _ => None,
         }
     }

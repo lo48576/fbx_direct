@@ -6,8 +6,7 @@
 //! difficult to use directly as COLLADA data.
 //! Compare FBX to COLLADA, this crate is XML reader/writer, not COLLADA importer/exporter.
 
-extern crate base64;
-extern crate byteorder;
+use byteorder;
 #[macro_use]
 extern crate log;
 

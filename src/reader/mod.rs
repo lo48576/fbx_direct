@@ -38,7 +38,7 @@ pub enum FbxEvent {
 }
 
 impl FbxEvent {
-    pub fn as_writer_event<'a>(&'a self) -> crate::writer::FbxEvent {
+    pub fn as_writer_event<'a>(&'a self) -> crate::writer::FbxEvent<'_> {
         use crate::writer::FbxEvent as WriterEvent;
         match *self {
             FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),

@@ -1,7 +1,7 @@
 //! Contains implementation of Binary FBX emitter.
 
-extern crate byteorder;
-extern crate flate2;
+use byteorder;
+use flate2;
 
 use std::io::{Write, Seek, SeekFrom};
 use self::byteorder::{LittleEndian, WriteBytesExt};
@@ -87,7 +87,7 @@ impl BinaryEmitter {
         Ok(())
     }
 
-    pub fn emit_start_node<W: Write + Seek>(&mut self, sink: &mut W, name: &str, properties: &[Property]) -> Result<()> {
+    pub fn emit_start_node<W: Write + Seek>(&mut self, sink: &mut W, name: &str, properties: &[Property<'_>]) -> Result<()> {
         if let Some(top) = self.null_record_necessities.last_mut() {
             // Parent node requires null record, because it has child node (the current node!).
             *top = true;

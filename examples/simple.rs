@@ -1,5 +1,5 @@
-extern crate fbx_direct;
-extern crate env_logger;
+
+use env_logger;
 
 use std::fs::File;
 use std::io::BufReader;

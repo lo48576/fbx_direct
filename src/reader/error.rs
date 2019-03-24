@@ -30,7 +30,7 @@ impl Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.kind {
             ErrorKind::Utf8Error(ref err) => write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err),
             ErrorKind::InvalidMagic => write!(f, "Invalid magic header at pos={}: Non-FBX or corrupted data?", self.pos),
@@ -56,10 +56,10 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match self.kind {
-            ErrorKind::Utf8Error(ref err) => Some(err as &error::Error),
-            ErrorKind::Io(ref err) => Some(err as &error::Error),
+            ErrorKind::Utf8Error(ref err) => Some(err as &dyn error::Error),
+            ErrorKind::Io(ref err) => Some(err as &dyn error::Error),
             _ => None,
         }
     }

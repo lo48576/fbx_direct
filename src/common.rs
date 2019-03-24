@@ -46,7 +46,7 @@ pub enum OwnedProperty {
 }
 
 impl OwnedProperty {
-    pub fn borrow(&self) -> Property {
+    pub fn borrow(&self) -> Property<'_> {
         match *self {
             OwnedProperty::Bool(v) => Property::Bool(v),
             OwnedProperty::I16(v) => Property::I16(v),
@@ -223,7 +223,7 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i32(&self) -> Option<Cow<[i32]>> {
+    pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
             OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
             OwnedProperty::VecI32(ref v) => Some(Cow::Borrowed(&v)),
@@ -245,7 +245,7 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i64(&self) -> Option<Cow<[i64]>> {
+    pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
             OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
             OwnedProperty::VecI32(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
@@ -269,7 +269,7 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f32(&self) -> Option<Cow<[f32]>> {
+    pub fn get_vec_f32(&self) -> Option<Cow<'_, [f32]>> {
         match *self {
             OwnedProperty::VecF32(ref v) => Some(Cow::Borrowed(&v)),
             OwnedProperty::VecF64(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as f32).collect())),
@@ -291,7 +291,7 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f64(&self) -> Option<Cow<[f64]>> {
+    pub fn get_vec_f64(&self) -> Option<Cow<'_, [f64]>> {
         match *self {
             OwnedProperty::VecF32(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as f64).collect())),
             OwnedProperty::VecF64(ref v) => Some(Cow::Borrowed(&v)),
@@ -327,7 +327,7 @@ impl OwnedProperty {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<'_, [u8]>> {
         match *self {
             OwnedProperty::String(ref v) => {
                 // In ASCII FBX, binary value is represented as base64-encoded string.
@@ -474,7 +474,7 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i32(&self) -> Option<Cow<[i32]>> {
+    pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
             Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
             Property::VecI32(v) => Some(Cow::Borrowed(v)),
@@ -485,7 +485,7 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i64(&self) -> Option<Cow<[i64]>> {
+    pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
             Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
             Property::VecI32(v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
@@ -497,7 +497,7 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f32(&self) -> Option<Cow<[f32]>> {
+    pub fn get_vec_f32(&self) -> Option<Cow<'_, [f32]>> {
         match *self {
             Property::VecF32(v) => Some(Cow::Borrowed(v)),
             Property::VecF64(v) => Some(Cow::Owned(v.iter().map(|&v| v as f32).collect())),
@@ -508,7 +508,7 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f64(&self) -> Option<Cow<[f64]>> {
+    pub fn get_vec_f64(&self) -> Option<Cow<'_, [f64]>> {
         match *self {
             Property::VecF32(v) => Some(Cow::Owned(v.iter().map(|&v| v as f64).collect())),
             Property::VecF64(v) => Some(Cow::Borrowed(v)),
@@ -525,7 +525,7 @@ impl<'a> Property<'a> {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<'_, [u8]>> {
         match *self {
             Property::String(v) => {
                 // In ASCII FBX, binary value is represented as base64-encoded string.
