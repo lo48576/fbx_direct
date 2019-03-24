@@ -1,4 +1,3 @@
-
 #[macro_use]
 extern crate log;
 use env_logger;
@@ -12,7 +11,8 @@ use fbx_direct::writer::EventWriter;
 
 fn indent(size: usize) -> String {
     const INDENT: &'static str = "    ";
-    (0..size).map(|_| INDENT)
+    (0..size)
+        .map(|_| INDENT)
         .fold(String::with_capacity(size * INDENT.len()), |r, s| r + s)
 }
 
@@ -38,21 +38,21 @@ fn binary_export_import_file(filename: &str) {
         let mut depth = 0;
         for e in parser {
             match e {
-                Ok(ref e@reader::FbxEvent::StartNode { .. }) => {
+                Ok(ref e @ reader::FbxEvent::StartNode { .. }) => {
                     debug!("{}{:?}", indent(depth), e);
                     depth += 1;
-                },
-                Ok(ref e@reader::FbxEvent::EndNode) => {
+                }
+                Ok(ref e @ reader::FbxEvent::EndNode) => {
                     depth -= 1;
                     debug!("{}{:?}", indent(depth), e);
-                },
+                }
                 Ok(ref e) => {
                     debug!("{}{:?}", indent(depth), e);
-                },
+                }
                 Err(e) => {
                     debug!("Error: {:?}", e);
                     break;
-                },
+                }
             }
             if let Ok(ref e) = e {
                 emitter.write(e.as_writer_event()).unwrap();
@@ -60,7 +60,7 @@ fn binary_export_import_file(filename: &str) {
         }
     }
     {
-        use std::io::{Seek,SeekFrom};
+        use std::io::{Seek, SeekFrom};
         exported1.seek(SeekFrom::Start(0)).unwrap();
     }
 
@@ -71,21 +71,21 @@ fn binary_export_import_file(filename: &str) {
         let mut depth = 0;
         for e in parser {
             match e {
-                Ok(ref e@reader::FbxEvent::StartNode { .. }) => {
+                Ok(ref e @ reader::FbxEvent::StartNode { .. }) => {
                     debug!("{}{:?}", indent(depth), e);
                     depth += 1;
-                },
-                Ok(ref e@reader::FbxEvent::EndNode) => {
+                }
+                Ok(ref e @ reader::FbxEvent::EndNode) => {
                     depth -= 1;
                     debug!("{}{:?}", indent(depth), e);
-                },
+                }
                 Ok(ref e) => {
                     debug!("{}{:?}", indent(depth), e);
-                },
+                }
                 Err(e) => {
                     debug!("Error: {:?}", e);
                     break;
-                },
+                }
             }
             if let Ok(ref e) = e {
                 emitter.write(e.as_writer_event()).unwrap();

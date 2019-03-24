@@ -1,7 +1,7 @@
 //! Contains interface for a pull-based (StAX-like) FBX parser.
 
-use std::io::Read;
 use self::error::Result;
+use std::io::Read;
 
 pub use self::error::{Error, ErrorKind};
 use crate::common::{FbxFormatType, OwnedProperty};
@@ -43,7 +43,10 @@ impl FbxEvent {
         match *self {
             FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),
             FbxEvent::EndFbx => WriterEvent::EndFbx,
-            FbxEvent::StartNode{ ref name, ref properties } => WriterEvent::StartNode {
+            FbxEvent::StartNode {
+                ref name,
+                ref properties,
+            } => WriterEvent::StartNode {
                 name: &name,
                 properties: properties.iter().map(|p| p.borrow()).collect(),
             },
@@ -82,7 +85,7 @@ impl<R: Read> EventReader<R> {
     }
 }
 
-impl <R: Read> IntoIterator for EventReader<R> {
+impl<R: Read> IntoIterator for EventReader<R> {
     type Item = Result<FbxEvent>;
     type IntoIter = Events<R>;
 

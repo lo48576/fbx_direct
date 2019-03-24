@@ -2,11 +2,11 @@
 
 use flate2;
 
-use std::io::Read;
-use crate::reader::error::{Result, Error, ErrorKind};
-use crate::reader::FbxEvent;
-use crate::common::OwnedProperty;
 use super::CommonState;
+use crate::common::OwnedProperty;
+use crate::reader::error::{Error, ErrorKind, Result};
+use crate::reader::FbxEvent;
+use std::io::Read;
 
 /// A parser for Binary FBX.
 #[derive(Debug, Clone)]
@@ -24,7 +24,11 @@ impl BinaryParser {
         }
     }
 
-    pub(crate) fn next<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<FbxEvent> {
+    pub(crate) fn next<R: Read>(
+        &mut self,
+        reader: &mut R,
+        common: &mut CommonState,
+    ) -> Result<FbxEvent> {
         // Check if the previously read node ends here.
         if let Some(&end_pos_top) = self.end_offset_stack.last() {
             if end_pos_top as u64 == common.pos {
@@ -44,8 +48,12 @@ impl BinaryParser {
                 } else {
                     // Data is collapsed (the node doesn't end at expected position).
                     Err(Error::new(
-                            common.pos,
-                            ErrorKind::DataError(format!("Node does not end at expected position (expected {}, now at {})", expected_pos, common.pos))))
+                        common.pos,
+                        ErrorKind::DataError(format!(
+                            "Node does not end at expected position (expected {}, now at {})",
+                            expected_pos, common.pos
+                        )),
+                    ))
                 }
             } else {
                 // Reached end of all nodes.
@@ -70,7 +78,8 @@ impl BinaryParser {
         let name = try_read_fixstr!(common.pos, reader, node_record_header.name_len);
 
         // Read properties.
-        let mut properties = Vec::<OwnedProperty>::with_capacity(node_record_header.num_properties as usize);
+        let mut properties =
+            Vec::<OwnedProperty>::with_capacity(node_record_header.num_properties as usize);
         for _ in 0..node_record_header.num_properties {
             let prop = self.read_property(reader, common)?;
             properties.push(prop);
@@ -83,11 +92,21 @@ impl BinaryParser {
     }
 
     /// Read a node property value.
-    fn read_property<R: Read>(&mut self, reader: &mut R, common: &mut CommonState) -> Result<OwnedProperty> {
+    fn read_property<R: Read>(
+        &mut self,
+        reader: &mut R,
+        common: &mut CommonState,
+    ) -> Result<OwnedProperty> {
         let type_code = try_read_le_u8!(common.pos, reader);
         // type code must be ASCII.
         let type_code = if type_code > 0x80 {
-            return Err(Error::new(common.pos-1, ErrorKind::DataError(format!("Expected property type code (ASCII) but got {:#x}", type_code))));
+            return Err(Error::new(
+                common.pos - 1,
+                ErrorKind::DataError(format!(
+                    "Expected property type code (ASCII) but got {:#x}",
+                    type_code
+                )),
+            ));
         } else {
             type_code as char
         };
@@ -103,84 +122,99 @@ impl BinaryParser {
                 }
                 // Check LSB.
                 OwnedProperty::Bool(val & 1 == 1)
-            },
+            }
             // 2 byte signed integer.
-            'Y' => {
-                OwnedProperty::I16(try_read_le_i16!(common.pos, reader))
-            },
+            'Y' => OwnedProperty::I16(try_read_le_i16!(common.pos, reader)),
             // 4 byte signed integer.
-            'I' => {
-                OwnedProperty::I32(try_read_le_i32!(common.pos, reader))
-            },
+            'I' => OwnedProperty::I32(try_read_le_i32!(common.pos, reader)),
             // 4 byte single-precision IEEE 754 floating-point number.
-            'F' => {
-                OwnedProperty::F32(try_read_le_f32!(common.pos, reader))
-            },
+            'F' => OwnedProperty::F32(try_read_le_f32!(common.pos, reader)),
             // 8 byte double-precision IEEE 754 floating-point number.
-            'D' => {
-                OwnedProperty::F64(try_read_le_f64!(common.pos, reader))
-            },
+            'D' => OwnedProperty::F64(try_read_le_f64!(common.pos, reader)),
             // 8 byte signed integer.
-            'L' => {
-                OwnedProperty::I64(try_read_le_i64!(common.pos, reader))
-            },
+            'L' => OwnedProperty::I64(try_read_le_i64!(common.pos, reader)),
             // Array types
-            'f'|'d'|'l'|'i'|'b' => {
+            'f' | 'd' | 'l' | 'i' | 'b' => {
                 let array_header = PropertyArrayHeader::read(reader, &mut common.pos)?;
                 self.read_property_value_array(reader, common, type_code, &array_header)?
-            },
+            }
             // String
             'S' => {
                 let length = try_read_le_u32!(common.pos, reader);
                 OwnedProperty::String(try_read_fixstr!(common.pos, reader, length))
-            },
+            }
             // Raw binary data
             'R' => {
                 let length = try_read_le_u32!(common.pos, reader);
                 OwnedProperty::Binary(try_read_exact!(common.pos, reader, length))
-            },
+            }
             _ => {
                 return Err(Error::new(
-                        common.pos,
-                        ErrorKind::UnexpectedValue(format!(
-                                "Unsupported type code appears in node property: type_code={}({:#x})",
-                                type_code, type_code as u8))));
+                    common.pos,
+                    ErrorKind::UnexpectedValue(format!(
+                        "Unsupported type code appears in node property: type_code={}({:#x})",
+                        type_code, type_code as u8
+                    )),
+                ));
             }
         };
         Ok(value)
     }
 
     /// Read a property value of array type from given stream which maybe compressed.
-    fn read_property_value_array<R: Read>(&mut self,
-                                          reader: &mut R, common: &mut CommonState,
-                                          type_code: char, array_header: &PropertyArrayHeader) -> Result<OwnedProperty> {
+    fn read_property_value_array<R: Read>(
+        &mut self,
+        reader: &mut R,
+        common: &mut CommonState,
+        type_code: char,
+        array_header: &PropertyArrayHeader,
+    ) -> Result<OwnedProperty> {
         match array_header.encoding {
             // 0; raw
             0 => {
-                let (val, byte_size) = self.read_property_value_array_from_plain_stream(reader, common.pos, type_code, array_header.array_length)?;
+                let (val, byte_size) = self.read_property_value_array_from_plain_stream(
+                    reader,
+                    common.pos,
+                    type_code,
+                    array_header.array_length,
+                )?;
                 common.pos += byte_size;
                 Ok(val)
-            },
+            }
             // 1: zlib compressed data
             1 => {
-                let mut decoded_stream = flate2::read::ZlibDecoder::new(reader.by_ref().take(array_header.compressed_length as u64));
-                let (val, _) = self.read_property_value_array_from_plain_stream(&mut decoded_stream, common.pos, type_code, array_header.array_length)?;
+                let mut decoded_stream = flate2::read::ZlibDecoder::new(
+                    reader.by_ref().take(array_header.compressed_length as u64),
+                );
+                let (val, _) = self.read_property_value_array_from_plain_stream(
+                    &mut decoded_stream,
+                    common.pos,
+                    type_code,
+                    array_header.array_length,
+                )?;
                 common.pos += array_header.compressed_length as u64;
                 Ok(val)
-            },
-            // Unknown.
-            e => {
-                Err(Error::new(
-                        common.pos,
-                        ErrorKind::UnexpectedValue(format!("Unsupported property array encoding, got {:#x}", e))))
             }
+            // Unknown.
+            e => Err(Error::new(
+                common.pos,
+                ErrorKind::UnexpectedValue(format!(
+                    "Unsupported property array encoding, got {:#x}",
+                    e
+                )),
+            )),
         }
     }
 
     /// Read a property value of array type from plain (uncompressed) stream.
-    fn read_property_value_array_from_plain_stream<R: Read>(&mut self, reader: &mut R, abs_pos: u64, type_code: char,
-                                                            num_elements: u32) -> Result<(OwnedProperty, u64)> {
-        use byteorder::{ReadBytesExt, LittleEndian};
+    fn read_property_value_array_from_plain_stream<R: Read>(
+        &mut self,
+        reader: &mut R,
+        abs_pos: u64,
+        type_code: char,
+        num_elements: u32,
+    ) -> Result<(OwnedProperty, u64)> {
+        use byteorder::{LittleEndian, ReadBytesExt};
         Ok(match type_code {
             // Array of 4 byte single-precision IEEE 754 floating-point number.
             'f' => {
@@ -189,7 +223,7 @@ impl BinaryParser {
                     data.push(try_with_pos!(abs_pos, reader.read_f32::<LittleEndian>()));
                 }
                 (OwnedProperty::VecF32(data), num_elements as u64 * 4)
-            },
+            }
             // Array of 8 byte double-precision IEEE 754 floating-point number.
             'd' => {
                 let mut data = Vec::<f64>::with_capacity(num_elements as usize);
@@ -197,7 +231,7 @@ impl BinaryParser {
                     data.push(try_with_pos!(abs_pos, reader.read_f64::<LittleEndian>()));
                 }
                 (OwnedProperty::VecF64(data), num_elements as u64 * 8)
-            },
+            }
             // Array of 8 byte signed integer.
             'l' => {
                 let mut data = Vec::<i64>::with_capacity(num_elements as usize);
@@ -205,7 +239,7 @@ impl BinaryParser {
                     data.push(try_with_pos!(abs_pos, reader.read_i64::<LittleEndian>()));
                 }
                 (OwnedProperty::VecI64(data), num_elements as u64 * 8)
-            },
+            }
             // Array of 4 byte signed integer.
             'i' => {
                 let mut data = Vec::<i32>::with_capacity(num_elements as usize);
@@ -213,7 +247,7 @@ impl BinaryParser {
                     data.push(try_with_pos!(abs_pos, reader.read_i32::<LittleEndian>()));
                 }
                 (OwnedProperty::VecI32(data), num_elements as u64 * 4)
-            },
+            }
             // Array of 1 byte booleans (always 0 or 1?).
             'b' => {
                 let mut data = Vec::<bool>::with_capacity(num_elements as usize);
@@ -222,7 +256,7 @@ impl BinaryParser {
                     data.push(try_with_pos!(abs_pos, reader.read_u8()) & 1 == 1);
                 }
                 (OwnedProperty::VecBool(data), num_elements as u64)
-            },
+            }
             _ => {
                 // Unreachable because `read_property()` gives only 'f' , 'd', 'l', 'i', or 'b' to
                 // `read_property_value_array()`.

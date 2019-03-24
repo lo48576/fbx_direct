@@ -225,7 +225,9 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
-            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             OwnedProperty::VecI32(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
@@ -247,7 +249,9 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
-            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             OwnedProperty::VecI32(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
             OwnedProperty::VecI64(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
@@ -336,7 +340,7 @@ impl OwnedProperty {
                 } else {
                     None
                 }
-            },
+            }
             OwnedProperty::Binary(ref v) => Some(Cow::Borrowed(&v[..])),
             _ => None,
         }
@@ -352,7 +356,7 @@ impl OwnedProperty {
                 } else {
                     Err(OwnedProperty::String(v))
                 }
-            },
+            }
             OwnedProperty::Binary(v) => Ok(v),
             v => Err(v),
         }
@@ -476,7 +480,9 @@ impl<'a> Property<'a> {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
-            Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            Property::VecBool(v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             Property::VecI32(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -487,7 +493,9 @@ impl<'a> Property<'a> {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
-            Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            Property::VecBool(v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             Property::VecI32(v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
             Property::VecI64(v) => Some(Cow::Borrowed(v)),
             _ => None,
@@ -534,7 +542,7 @@ impl<'a> Property<'a> {
                 } else {
                     None
                 }
-            },
+            }
             Property::Binary(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -543,7 +551,7 @@ impl<'a> Property<'a> {
 
 #[cfg(test)]
 mod property_tests {
-    use super::{OwnedProperty};
+    use super::OwnedProperty;
 
     #[test]
     fn owned_vec_i32_to_vec_i64() {

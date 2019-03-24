@@ -1,10 +1,10 @@
 //! Contains result and error type for FBX reader.
 
-use std::io;
-use std::string;
-use std::str;
-use std::fmt;
 use std::error;
+use std::fmt;
+use std::io;
+use std::str;
+use std::string;
 
 /// A specialized `std::result::Result` type for FBX parsing.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -32,11 +32,19 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.kind {
-            ErrorKind::Utf8Error(ref err) => write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err),
-            ErrorKind::InvalidMagic => write!(f, "Invalid magic header at pos={}: Non-FBX or corrupted data?", self.pos),
+            ErrorKind::Utf8Error(ref err) => {
+                write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err)
+            }
+            ErrorKind::InvalidMagic => write!(
+                f,
+                "Invalid magic header at pos={}: Non-FBX or corrupted data?",
+                self.pos
+            ),
             ErrorKind::Io(ref err) => write!(f, "I/O error at pos={}: {}", self.pos, err),
             ErrorKind::DataError(ref err) => write!(f, "Invalid data at pos={}: {}", self.pos, err),
-            ErrorKind::UnexpectedValue(ref err) => write!(f, "Got an unexpected value at pos={}: {}", self.pos, err),
+            ErrorKind::UnexpectedValue(ref err) => {
+                write!(f, "Got an unexpected value at pos={}: {}", self.pos, err)
+            }
             ErrorKind::UnexpectedEof => write!(f, "Unexpected EOF at pos={}", self.pos),
             ErrorKind::Unimplemented(ref err) => write!(f, "Unimplemented feature: {}", err),
         }

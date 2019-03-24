@@ -1,9 +1,8 @@
 //! Contains result and error type for FBX reader.
 
-use std::io;
-use std::fmt;
 use std::error;
-
+use std::fmt;
+use std::io;
 
 /// A specialized `std::result::Result` type for FBX exporting.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -37,8 +36,14 @@ impl fmt::Display for Error {
             Error::Io(ref err) => write!(f, "I/O error: {}", err),
             Error::DataTooLarge(ref err) => write!(f, "Data size is too large: {}", err),
             Error::ExtraEndNode => write!(f, "Extra end-of-node marker detected"),
-            Error::FbxNotStarted => write!(f, "An writer event is given, but FBX data is not started yet"),
-            Error::FbxAlreadyStarted => write!(f, "Got a writer event to start FBX, but FBX data is already started"),
+            Error::FbxNotStarted => write!(
+                f,
+                "An writer event is given, but FBX data is not started yet"
+            ),
+            Error::FbxAlreadyStarted => write!(
+                f,
+                "Got a writer event to start FBX, but FBX data is already started"
+            ),
             Error::InvalidOption(ref err) => write!(f, "Invalid writer option: {}", err),
             Error::UnsupportedFbxVersion(ver) => write!(f, "Unsupported FBX version ({})", ver),
             Error::UnwritableEvent => write!(f, "A given event is not writable in current format"),
@@ -54,7 +59,9 @@ impl error::Error for Error {
             Error::DataTooLarge(_) => "Data size is too large",
             Error::ExtraEndNode => "Extra end-of-node marker detected",
             Error::FbxNotStarted => "An writer event is given, but FBX data is not started yet",
-            Error::FbxAlreadyStarted => "Got a writer event to start FBX, but FBX data is already started",
+            Error::FbxAlreadyStarted => {
+                "Got a writer event to start FBX, but FBX data is already started"
+            }
             Error::InvalidOption(_) => "Invalid writer option",
             Error::UnsupportedFbxVersion(_) => "Unsupported FBX version",
             Error::UnwritableEvent => "A given event is not writable in current format",

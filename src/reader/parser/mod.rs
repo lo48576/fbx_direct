@@ -1,11 +1,11 @@
 //! Contains implementations of FBX parsers.
 
-use std::io::Read;
-use crate::reader::error::{Result, Error, ErrorKind};
-use crate::reader::{FbxEvent, ParserConfig};
-use crate::common::FbxFormatType;
-use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
+use self::binary::BinaryParser;
+use crate::common::FbxFormatType;
+use crate::reader::error::{Error, ErrorKind, Result};
+use crate::reader::{FbxEvent, ParserConfig};
+use std::io::Read;
 
 mod macros;
 
@@ -68,7 +68,7 @@ impl Parser {
             // Break only when `ignore_comments` option is disabled or got non-comment event.
             if self.config.ignore_comments {
                 match r {
-                    Ok(FbxEvent::Comment(_)) => {},
+                    Ok(FbxEvent::Comment(_)) => {}
                     r => {
                         result = r;
                         break;
@@ -83,7 +83,7 @@ impl Parser {
         match result {
             Ok(FbxEvent::EndFbx) | Err(_) => {
                 self.common.final_result = Some(result.clone());
-            },
+            }
             _ => {}
         }
         result
@@ -115,7 +115,10 @@ impl Parser {
                 {
                     let bytes = try_read_exact!(self.common.pos, reader, 2);
                     if bytes != vec![0x1A, 0x00] {
-                        warn!("expected [0x1A, 0x00] right after magic, but got {:?}", bytes);
+                        warn!(
+                            "expected [0x1A, 0x00] right after magic, but got {:?}",
+                            bytes
+                        );
                     }
                 }
                 // Read FBX version.
