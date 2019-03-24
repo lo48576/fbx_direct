@@ -6,8 +6,8 @@ use super::CommonState;
 use crate::common::OwnedProperty;
 use crate::reader::error::{Error, ErrorKind, Result};
 use crate::reader::FbxEvent;
-use std::io::Read;
 use log::warn;
+use std::io::Read;
 
 /// A parser for Binary FBX.
 #[derive(Debug, Clone)]
@@ -86,10 +86,7 @@ impl BinaryParser {
             properties.push(prop);
         }
 
-        Ok(FbxEvent::StartNode {
-            name,
-            properties,
-        })
+        Ok(FbxEvent::StartNode { name, properties })
     }
 
     /// Read a node property value.
@@ -185,7 +182,9 @@ impl BinaryParser {
             // 1: zlib compressed data
             1 => {
                 let mut decoded_stream = flate2::read::ZlibDecoder::new(
-                    reader.by_ref().take(u64::from(array_header.compressed_length)),
+                    reader
+                        .by_ref()
+                        .take(u64::from(array_header.compressed_length)),
                 );
                 let (val, _) = self.read_property_value_array_from_plain_stream(
                     &mut decoded_stream,

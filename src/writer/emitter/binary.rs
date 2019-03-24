@@ -6,8 +6,8 @@ use flate2;
 use self::byteorder::{LittleEndian, WriteBytesExt};
 use crate::common::Property;
 use crate::writer::error::{Error, Result};
-use std::io::{Seek, SeekFrom, Write};
 use log::error;
+use std::io::{Seek, SeekFrom, Write};
 
 /// A writer for Binary FBX.
 #[derive(Debug, Clone)]

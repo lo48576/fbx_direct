@@ -252,7 +252,9 @@ impl OwnedProperty {
             OwnedProperty::VecBool(ref v) => Some(Cow::Owned(
                 v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
             )),
-            OwnedProperty::VecI32(ref v) => Some(Cow::Owned(v.iter().map(|&v| i64::from(v)).collect())),
+            OwnedProperty::VecI32(ref v) => {
+                Some(Cow::Owned(v.iter().map(|&v| i64::from(v)).collect()))
+            }
             OwnedProperty::VecI64(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
@@ -297,7 +299,9 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_vec_f64(&self) -> Option<Cow<'_, [f64]>> {
         match *self {
-            OwnedProperty::VecF32(ref v) => Some(Cow::Owned(v.iter().map(|&v| f64::from(v)).collect())),
+            OwnedProperty::VecF32(ref v) => {
+                Some(Cow::Owned(v.iter().map(|&v| f64::from(v)).collect()))
+            }
             OwnedProperty::VecF64(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
