@@ -107,10 +107,10 @@ macro_rules! try_read_fixstr {
             $pos,
             $reader
                 .by_ref()
-                .take($len as u64)
+                .take(u64::from($len))
                 .read_to_string(&mut buffer)
         ) as u64;
-        if len != ($len as u64) {
+        if len != (u64::from($len)) {
             return Err(Error::new($pos, ErrorKind::UnexpectedEof));
         }
         $pos += len;
@@ -123,9 +123,9 @@ macro_rules! try_read_exact {
         let mut buffer = Vec::<u8>::with_capacity($len as usize);
         let len = try_with_pos!(
             $pos,
-            $reader.by_ref().take($len as u64).read_to_end(&mut buffer)
+            $reader.by_ref().take(u64::from($len)).read_to_end(&mut buffer)
         ) as u64;
-        if len != ($len as u64) {
+        if len != u64::from($len) {
             return Err(Error::new($pos, ErrorKind::UnexpectedEof));
         }
         $pos += len;

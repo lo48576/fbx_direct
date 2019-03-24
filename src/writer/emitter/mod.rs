@@ -35,7 +35,7 @@ pub struct Emitter {
 impl Emitter {
     pub fn new(config: EmitterConfig) -> Self {
         Emitter {
-            config: config,
+            config,
             common: CommonState { final_result: None },
             state: EmitterState::Initial,
         }

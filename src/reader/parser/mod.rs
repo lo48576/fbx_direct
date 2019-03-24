@@ -43,7 +43,7 @@ impl Parser {
     /// Constructs a parser.
     pub fn new(config: ParserConfig) -> Self {
         Parser {
-            config: config,
+            config,
             common: CommonState {
                 pos: 0,
                 final_result: None,
@@ -99,7 +99,7 @@ impl Parser {
         let magic_end_byte;
         loop {
             let c = try_read_le_u8!(self.common.pos, reader);
-            if (c == 0) || (c == ('\n' as u8)) {
+            if (c == 0) || (c == (b'\n')) {
                 magic_end_byte = c;
                 break;
             }
@@ -114,7 +114,7 @@ impl Parser {
                 // "unknown but all observed files show these bytes",
                 // see https://code.blender.org/2013/08/fbx-binary-file-format-specification/ .
                 {
-                    let bytes = try_read_exact!(self.common.pos, reader, 2);
+                    let bytes = try_read_exact!(self.common.pos, reader, 2u64);
                     if bytes != vec![0x1A, 0x00] {
                         warn!(
                             "expected [0x1A, 0x00] right after magic, but got {:?}",
@@ -131,10 +131,10 @@ impl Parser {
                 Err(Error::new(self.common.pos, ErrorKind::InvalidMagic))
             }
         } else {
-            assert_eq!(magic_end_byte, ('\n' as u8));
+            assert_eq!(magic_end_byte, (b'\n'));
             // Maybe ASCII FBX
             let mut buffer;
-            if first_line_bytes[0] != (';' as u8) {
+            if first_line_bytes[0] != (b';') {
                 // The line is not comment, so the parser should remember it to use next time.
                 buffer = try_with_pos!(self.common.pos, String::from_utf8(first_line_bytes));
                 buffer.push('\n');

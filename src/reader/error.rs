@@ -23,7 +23,7 @@ impl Error {
     /// [`ErrorKind`](enum.ErrorKind.html).
     pub fn new<K: Into<ErrorKind>>(pos: u64, kind: K) -> Self {
         Error {
-            pos: pos,
+            pos,
             kind: kind.into(),
         }
     }
@@ -99,7 +99,7 @@ impl Clone for ErrorKind {
         use self::ErrorKind::*;
         use std::error::Error;
         match *self {
-            Utf8Error(ref e) => Utf8Error(e.clone()),
+            Utf8Error(ref e) => Utf8Error(*e),
             InvalidMagic => InvalidMagic,
             // `io::Error` (and an error wrapped by `io::Error`) cannot be cloned.
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),

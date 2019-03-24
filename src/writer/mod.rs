@@ -19,7 +19,7 @@ impl<W: Write + Seek> EventWriter<W> {
     /// Creates a new writer.
     pub fn new(sink: W) -> Self {
         EventWriter {
-            sink: sink,
+            sink,
             emitter: emitter::Emitter::new(EmitterConfig::new()),
         }
     }
@@ -27,7 +27,7 @@ impl<W: Write + Seek> EventWriter<W> {
     /// Creates a new emitter with provided configuration.
     pub fn new_with_config(sink: W, config: EmitterConfig) -> Self {
         EventWriter {
-            sink: sink,
+            sink,
             emitter: emitter::Emitter::new(config),
         }
     }

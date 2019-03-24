@@ -20,7 +20,7 @@ impl BinaryParser {
     /// Constructs Binary FBX parser with FBX version (which is placed after magic binary).
     pub(crate) fn new(version: u32) -> Self {
         BinaryParser {
-            version: version,
+            version,
             end_offset_stack: vec![],
         }
     }
@@ -87,8 +87,8 @@ impl BinaryParser {
         }
 
         Ok(FbxEvent::StartNode {
-            name: name,
-            properties: properties,
+            name,
+            properties,
         })
     }
 
@@ -116,7 +116,7 @@ impl BinaryParser {
             'C' => {
                 let val = try_read_le_u8!(common.pos, reader);
                 // It seems 'T' (0x54) is used as `false`, 'T' (0x59) is used as `true`.
-                if (val != 'T' as u8) && (val != 'Y' as u8) {
+                if (val != b'T') && (val != b'Y') {
                     // Should this treated as error?
                     // (I don't know whether other characters than 'T' and 'Y' are allowed...)
                     warn!("Expected 'T' or 'Y' for representaton of boolean property value, but got {:#x}", val);
@@ -185,7 +185,7 @@ impl BinaryParser {
             // 1: zlib compressed data
             1 => {
                 let mut decoded_stream = flate2::read::ZlibDecoder::new(
-                    reader.by_ref().take(array_header.compressed_length as u64),
+                    reader.by_ref().take(u64::from(array_header.compressed_length)),
                 );
                 let (val, _) = self.read_property_value_array_from_plain_stream(
                     &mut decoded_stream,
@@ -193,7 +193,7 @@ impl BinaryParser {
                     type_code,
                     array_header.array_length,
                 )?;
-                common.pos += array_header.compressed_length as u64;
+                common.pos += u64::from(array_header.compressed_length);
                 Ok(val)
             }
             // Unknown.
@@ -223,7 +223,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_f32::<LittleEndian>()));
                 }
-                (OwnedProperty::VecF32(data), num_elements as u64 * 4)
+                (OwnedProperty::VecF32(data), u64::from(num_elements) * 4)
             }
             // Array of 8 byte double-precision IEEE 754 floating-point number.
             'd' => {
@@ -231,7 +231,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_f64::<LittleEndian>()));
                 }
-                (OwnedProperty::VecF64(data), num_elements as u64 * 8)
+                (OwnedProperty::VecF64(data), u64::from(num_elements) * 8)
             }
             // Array of 8 byte signed integer.
             'l' => {
@@ -239,7 +239,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_i64::<LittleEndian>()));
                 }
-                (OwnedProperty::VecI64(data), num_elements as u64 * 8)
+                (OwnedProperty::VecI64(data), u64::from(num_elements) * 8)
             }
             // Array of 4 byte signed integer.
             'i' => {
@@ -247,7 +247,7 @@ impl BinaryParser {
                 for _ in 0..num_elements {
                     data.push(try_with_pos!(abs_pos, reader.read_i32::<LittleEndian>()));
                 }
-                (OwnedProperty::VecI32(data), num_elements as u64 * 4)
+                (OwnedProperty::VecI32(data), u64::from(num_elements) * 4)
             }
             // Array of 1 byte booleans (always 0 or 1?).
             'b' => {
@@ -256,7 +256,7 @@ impl BinaryParser {
                     // Check LSB.
                     data.push(try_with_pos!(abs_pos, reader.read_u8()) & 1 == 1);
                 }
-                (OwnedProperty::VecBool(data), num_elements as u64)
+                (OwnedProperty::VecBool(data), u64::from(num_elements))
             }
             _ => {
                 // Unreachable because `read_property()` gives only 'f' , 'd', 'l', 'i', or 'b' to
@@ -284,26 +284,26 @@ impl NodeRecordHeader {
     /// Constructs `NodeRecordHeader` from the given stream.
     pub fn read<R: Read>(reader: &mut R, pos: &mut u64, context: &BinaryParser) -> Result<Self> {
         let end_offset = if context.version < 7500 {
-            try_read_le_u32!(*pos, reader) as u64
+            u64::from(try_read_le_u32!(*pos, reader))
         } else {
             try_read_le_u64!(*pos, reader)
         };
         let num_properties = if context.version < 7500 {
-            try_read_le_u32!(*pos, reader) as u64
+            u64::from(try_read_le_u32!(*pos, reader))
         } else {
             try_read_le_u64!(*pos, reader)
         };
         let property_list_len = if context.version < 7500 {
-            try_read_le_u32!(*pos, reader) as u64
+            u64::from(try_read_le_u32!(*pos, reader))
         } else {
             try_read_le_u64!(*pos, reader)
         };
         let name_len = try_read_le_u8!(*pos, reader);
         Ok(NodeRecordHeader {
-            end_offset: end_offset,
-            num_properties: num_properties,
-            property_list_len: property_list_len,
-            name_len: name_len,
+            end_offset,
+            num_properties,
+            property_list_len,
+            name_len,
         })
     }
 
@@ -334,9 +334,9 @@ impl PropertyArrayHeader {
         let encoding = try_read_le_u32!(*pos, reader);
         let compressed_length = try_read_le_u32!(*pos, reader);
         Ok(PropertyArrayHeader {
-            array_length: array_length,
-            encoding: encoding,
-            compressed_length: compressed_length,
+            array_length,
+            encoding,
+            compressed_length,
         })
     }
 }

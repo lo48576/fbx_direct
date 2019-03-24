@@ -14,7 +14,7 @@ pub struct AsciiParser {
 impl AsciiParser {
     /// Constructs ASCII FBX parser with initial state of internal buffer.
     pub(crate) fn new(buffer: String) -> Self {
-        AsciiParser { buffer: buffer }
+        AsciiParser { buffer }
     }
 
     pub(crate) fn next<R: Read>(

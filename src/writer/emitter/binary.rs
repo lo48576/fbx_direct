@@ -22,7 +22,7 @@ impl BinaryEmitter {
     /// Constructs Binary FBX writer with FBX version.
     pub fn new(version: u32) -> Self {
         BinaryEmitter {
-            version: version,
+            version,
             pos: 0,
             end_offset_pos_stack: vec![],
             null_record_necessities: vec![],
@@ -35,9 +35,9 @@ impl BinaryEmitter {
             return Err(Error::UnsupportedFbxVersion(ver));
         }
         // Write magic binary for Binary FBX.
-        sink.write(b"Kaydara FBX Binary  \x00")?;
+        sink.write_all(b"Kaydara FBX Binary  \x00")?;
         // Meaning is unknown, but value seems to be always `[0x1A, 0x00]`.
-        sink.write(b"\x1a\x00")?;
+        sink.write_all(b"\x1a\x00")?;
         // Write FBX version.
         sink.write_u32::<LittleEndian>(ver)?;
 
@@ -183,38 +183,38 @@ impl BinaryEmitter {
                 };
                 props_byte_size += 1 + match *prop {
                     Property::Bool(v) => {
-                        sink.write_u8('C' as u8)?;
+                        sink.write_u8(b'C')?;
                         // `'Y'` is `0x59`,  `'T'` is `0x54`.
                         sink.write_u8(if v { 'Y' } else { 'T' } as u8)?;
                         1
                     }
                     Property::I16(v) => {
-                        sink.write_u8('Y' as u8)?;
+                        sink.write_u8(b'Y')?;
                         sink.write_i16::<LittleEndian>(v)?;
                         2
                     }
                     Property::I32(v) => {
-                        sink.write_u8('I' as u8)?;
+                        sink.write_u8(b'I')?;
                         sink.write_i32::<LittleEndian>(v)?;
                         4
                     }
                     Property::I64(v) => {
-                        sink.write_u8('L' as u8)?;
+                        sink.write_u8(b'L')?;
                         sink.write_i64::<LittleEndian>(v)?;
                         8
                     }
                     Property::F32(v) => {
-                        sink.write_u8('F' as u8)?;
+                        sink.write_u8(b'F')?;
                         sink.write_f32::<LittleEndian>(v)?;
                         4
                     }
                     Property::F64(v) => {
-                        sink.write_u8('D' as u8)?;
+                        sink.write_u8(b'D')?;
                         sink.write_f64::<LittleEndian>(v)?;
                         8
                     }
                     Property::VecBool(vec) => {
-                        sink.write_u8('b' as u8)?;
+                        sink.write_u8(b'b')?;
                         for v in vec.iter().map(|&v| if v { 'Y' } else { 'T' } as u8) {
                             sink.write_u8(v)?;
                         }
@@ -225,13 +225,13 @@ impl BinaryEmitter {
                     Property::VecF32(vec) => read_array_value!(vec, 'f', write_f32),
                     Property::VecF64(vec) => read_array_value!(vec, 'd', write_f64),
                     Property::String(s) => {
-                        sink.write_u8('S' as u8)?;
+                        sink.write_u8(b'S')?;
                         sink.write_u32::<LittleEndian>(s.len() as u32)?;
                         sink.write_all(s.as_bytes())?;
                         4 + s.len() as u64
                     }
                     Property::Binary(b) => {
-                        sink.write_u8('R' as u8)?;
+                        sink.write_u8(b'R')?;
                         sink.write_u32::<LittleEndian>(b.len() as u32)?;
                         sink.write_all(b)?;
                         4 + b.len() as u64
@@ -242,7 +242,7 @@ impl BinaryEmitter {
             let last_pos = sink.seek(SeekFrom::Current(0))?;
             sink.seek(SeekFrom::Start(prop_list_len_offset))?;
             if self.version < 7500 {
-                if props_byte_size > u32::max_value() as u64 {
+                if props_byte_size > u64::from(u32::max_value()) {
                     return Err(Error::DataTooLarge(format!(
                         "Properties size ({} bytes) is too large for FBX {}",
                         props_byte_size, self.version
@@ -278,7 +278,7 @@ impl BinaryEmitter {
         let last_pos = sink.seek(SeekFrom::Current(0))?;
         sink.seek(SeekFrom::Start(self.end_offset_pos_stack.pop().unwrap()))?;
         if self.version < 7500 {
-            if last_pos > u32::max_value() as u64 {
+            if last_pos > u64::from(u32::max_value()) {
                 return Err(Error::DataTooLarge(format!(
                     "File size (currently {} bytes) is too large for FBX {}",
                     last_pos, self.version

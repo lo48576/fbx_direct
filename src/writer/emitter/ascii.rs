@@ -7,7 +7,7 @@ use log::{error, warn};
 
 fn indent<W: Write>(sink: &mut W, depth: usize) -> Result<()> {
     for _ in 0..depth {
-        sink.write(b"\t")?;
+        sink.write_all(b"\t")?;
     }
     Ok(())
 }
@@ -26,7 +26,7 @@ fn print_property<W: Write>(
         ($vec:ident) => {{
             sink.write_fmt(format_args!("*{} {{\n", $vec.len()))?;
             indent(sink, prop_depth)?;
-            sink.write(b"a: ")?;
+            sink.write_all(b"a: ")?;
             let mut iter = $vec.iter();
             if let Some(&v) = iter.next() {
                 sink.write_fmt(format_args!("{}", v))?;
@@ -34,17 +34,17 @@ fn print_property<W: Write>(
             for &v in iter {
                 sink.write_fmt(format_args!(",{}", v))?;
             }
-            sink.write(b"\n")?;
+            sink.write_all(b"\n")?;
             indent(sink, prop_depth - 1)?;
-            sink.write(b"}")?;
+            sink.write_all(b"}")?;
         }};
     }
     match *property {
         Property::Bool(false) => {
-            sink.write(b"T")?;
+            sink.write_all(b"T")?;
         }
         Property::Bool(true) => {
-            sink.write(b"Y")?;
+            sink.write_all(b"Y")?;
         }
         Property::I16(v) => {
             sink.write_fmt(format_args!("{}", v))?;
@@ -67,17 +67,17 @@ fn print_property<W: Write>(
             warn!("ASCII representation of vector of boolean values may be wrong.");
             sink.write_fmt(format_args!("*{} {{\n", vec.len()))?;
             indent(sink, prop_depth)?;
-            sink.write(b"a: ")?;
+            sink.write_all(b"a: ")?;
             let mut iter = vec.iter();
             if let Some(&v) = iter.next() {
-                sink.write(if v { b"Y" } else { b"T" })?;
+                sink.write_all(if v { b"Y" } else { b"T" })?;
             }
             for &v in iter {
-                sink.write(if v { b",Y" } else { b",T" })?;
+                sink.write_all(if v { b",Y" } else { b",T" })?;
             }
-            sink.write(b"\n")?;
+            sink.write_all(b"\n")?;
             indent(sink, prop_depth - 1)?;
-            sink.write(b"}")?;
+            sink.write_all(b"}")?;
         }
         Property::VecI32(vec) => {
             generic_vec_print!(vec);
@@ -92,24 +92,24 @@ fn print_property<W: Write>(
             generic_vec_print!(vec);
         }
         Property::String(v) => {
-            sink.write(b"\"")?;
+            sink.write_all(b"\"")?;
             for c in v.chars() {
                 match c {
                     '"' => {
-                        sink.write(b"&quot;")?;
+                        sink.write_all(b"&quot;")?;
                     }
                     '\n' => {
-                        sink.write(b"&lf;")?;
+                        sink.write_all(b"&lf;")?;
                     }
                     '\r' => {
-                        sink.write(b"&cr;")?;
+                        sink.write_all(b"&cr;")?;
                     }
                     _ => {
                         sink.write_fmt(format_args!("{}", c))?;
                     }
                 }
             }
-            sink.write(b"\"")?;
+            sink.write_all(b"\"")?;
         }
         Property::Binary(v) => {
             // TODO: Implement folding of long line.
@@ -166,7 +166,7 @@ impl AsciiEmitter {
             // Print brace for *parent node*, if the current node is the first child.
             // (i.e. `child_exist` of parent is `false`.)
             if !child_exist {
-                sink.write(b" {\n")?;
+                sink.write_all(b" {\n")?;
             }
             self.prop_child_existence.push((prop_exist, true));
         }
@@ -181,7 +181,7 @@ impl AsciiEmitter {
             print_property(sink, prop, prop_depth)?;
         }
         for prop in prop_iter {
-            sink.write(b", ")?;
+            sink.write_all(b", ")?;
             print_property(sink, prop, prop_depth)?;
         }
 
@@ -192,12 +192,12 @@ impl AsciiEmitter {
         let (prop_exist, child_exist) = self.prop_child_existence.pop().unwrap();
         if !prop_exist || child_exist {
             if !prop_exist && !child_exist {
-                sink.write(b" {\n")?;
+                sink.write_all(b" {\n")?;
             }
             indent(sink, self.prop_child_existence.len())?;
-            sink.write(b"}\n")?;
+            sink.write_all(b"}\n")?;
         } else {
-            sink.write(b"\n")?;
+            sink.write_all(b"\n")?;
         }
 
         Ok(())
@@ -206,8 +206,8 @@ impl AsciiEmitter {
     pub fn emit_comment<W: Write>(&mut self, sink: &mut W, comment: &str) -> Result<()> {
         for line in comment.lines() {
             indent(sink, self.prop_child_existence.len())?;
-            sink.write(line.as_bytes())?;
-            sink.write(b"\n")?;
+            sink.write_all(line.as_bytes())?;
+            sink.write_all(b"\n")?;
         }
 
         Ok(())
