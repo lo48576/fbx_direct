@@ -38,6 +38,13 @@ additional terms or conditions.
 
 == Release Notes
 
+=== 0.6.4
+New feature and improvements::
+    Bump dependencies;;
+        `byteorder` 0.9 -> 0.10, `env_logger` 0.5.10 -> 0.6
+    Rewrite in Rust edition 2018;;
+        Applied `cargo fix` and fixed clippy lints.
+
 === 0.6.3
 New feature and improvements::
     Bump many dependencies;;
