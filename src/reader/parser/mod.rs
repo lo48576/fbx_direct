@@ -8,6 +8,7 @@ use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
 
 mod macros;
+
 mod ascii;
 mod binary;
 
