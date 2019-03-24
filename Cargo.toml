@@ -2,6 +2,7 @@
 name = "fbx_direct"
 version = "0.6.3"
 authors = ["Takuma Yoshioka <nu11p0.6477@gmail.com>"]
+edition = "2018"
 
 documentation = "https://docs.rs/fbx_direct/"
 homepage = "https://github.com/l1048576/fbx_direct"
@@ -15,7 +16,7 @@ description = "Low-level FBX library"
 log = "0.4.2"
 byteorder = "1.2.3"
 flate2 = "1.0.1"
-base64 = "0.9"
+base64 = "0.10"
 
 [dev-dependencies]
-env_logger = "0.5.10"
+env_logger = "0.6"

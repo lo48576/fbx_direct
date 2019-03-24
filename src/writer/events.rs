@@ -2,7 +2,7 @@
 
 use std::borrow::Cow;
 
-use common::{FbxFormatType, Property};
+use crate::common::{FbxFormatType, Property};
 
 pub enum FbxEvent<'a> {
     /// Denotes start of FBX data.

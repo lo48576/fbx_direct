@@ -1,10 +1,10 @@
 //! Contains interface for a pull-based (StAX-like) FBX parser.
 
-use std::io::Read;
 use self::error::Result;
+use std::io::Read;
 
 pub use self::error::{Error, ErrorKind};
-use common::{FbxFormatType, OwnedProperty};
+use crate::common::{FbxFormatType, OwnedProperty};
 
 mod error;
 mod parser;
@@ -38,12 +38,15 @@ pub enum FbxEvent {
 }
 
 impl FbxEvent {
-    pub fn as_writer_event<'a>(&'a self) -> ::writer::FbxEvent {
-        use writer::FbxEvent as WriterEvent;
+    pub fn as_writer_event(&self) -> crate::writer::FbxEvent<'_> {
+        use crate::writer::FbxEvent as WriterEvent;
         match *self {
-            FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),
+            FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(*format),
             FbxEvent::EndFbx => WriterEvent::EndFbx,
-            FbxEvent::StartNode{ ref name, ref properties } => WriterEvent::StartNode {
+            FbxEvent::StartNode {
+                ref name,
+                ref properties,
+            } => WriterEvent::StartNode {
                 name: &name,
                 properties: properties.iter().map(|p| p.borrow()).collect(),
             },
@@ -63,7 +66,7 @@ impl<R: Read> EventReader<R> {
     /// Creates a new reader, consuming the given stream.
     pub fn new(source: R) -> Self {
         EventReader {
-            source: source,
+            source,
             parser: parser::Parser::new(ParserConfig::new()),
         }
     }
@@ -71,18 +74,19 @@ impl<R: Read> EventReader<R> {
     /// Creates a new reader with provided configuration, consuming the given stream.
     pub fn new_with_config(source: R, config: ParserConfig) -> Self {
         EventReader {
-            source: source,
+            source,
             parser: parser::Parser::new(config),
         }
     }
 
     /// Pulls and returns next FBX event from the stream.
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Result<FbxEvent> {
         self.parser.next(&mut self.source)
     }
 }
 
-impl <R: Read> IntoIterator for EventReader<R> {
+impl<R: Read> IntoIterator for EventReader<R> {
     type Item = Result<FbxEvent>;
     type IntoIter = Events<R>;
 

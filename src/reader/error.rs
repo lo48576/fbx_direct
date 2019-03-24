@@ -1,10 +1,10 @@
 //! Contains result and error type for FBX reader.
 
-use std::io;
-use std::string;
-use std::str;
-use std::fmt;
 use std::error;
+use std::fmt;
+use std::io;
+use std::str;
+use std::string;
 
 /// A specialized `std::result::Result` type for FBX parsing.
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -23,20 +23,28 @@ impl Error {
     /// [`ErrorKind`](enum.ErrorKind.html).
     pub fn new<K: Into<ErrorKind>>(pos: u64, kind: K) -> Self {
         Error {
-            pos: pos,
+            pos,
             kind: kind.into(),
         }
     }
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.kind {
-            ErrorKind::Utf8Error(ref err) => write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err),
-            ErrorKind::InvalidMagic => write!(f, "Invalid magic header at pos={}: Non-FBX or corrupted data?", self.pos),
+            ErrorKind::Utf8Error(ref err) => {
+                write!(f, "UTF-8 conversion error at pos={}: {}", self.pos, err)
+            }
+            ErrorKind::InvalidMagic => write!(
+                f,
+                "Invalid magic header at pos={}: Non-FBX or corrupted data?",
+                self.pos
+            ),
             ErrorKind::Io(ref err) => write!(f, "I/O error at pos={}: {}", self.pos, err),
             ErrorKind::DataError(ref err) => write!(f, "Invalid data at pos={}: {}", self.pos, err),
-            ErrorKind::UnexpectedValue(ref err) => write!(f, "Got an unexpected value at pos={}: {}", self.pos, err),
+            ErrorKind::UnexpectedValue(ref err) => {
+                write!(f, "Got an unexpected value at pos={}: {}", self.pos, err)
+            }
             ErrorKind::UnexpectedEof => write!(f, "Unexpected EOF at pos={}", self.pos),
             ErrorKind::Unimplemented(ref err) => write!(f, "Unimplemented feature: {}", err),
         }
@@ -56,10 +64,10 @@ impl error::Error for Error {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match self.kind {
-            ErrorKind::Utf8Error(ref err) => Some(err as &error::Error),
-            ErrorKind::Io(ref err) => Some(err as &error::Error),
+            ErrorKind::Utf8Error(ref err) => Some(err as &dyn error::Error),
+            ErrorKind::Io(ref err) => Some(err as &dyn error::Error),
             _ => None,
         }
     }
@@ -91,7 +99,7 @@ impl Clone for ErrorKind {
         use self::ErrorKind::*;
         use std::error::Error;
         match *self {
-            Utf8Error(ref e) => Utf8Error(e.clone()),
+            Utf8Error(ref e) => Utf8Error(*e),
             InvalidMagic => InvalidMagic,
             // `io::Error` (and an error wrapped by `io::Error`) cannot be cloned.
             Io(ref e) => Io(io::Error::new(e.kind(), e.description())),

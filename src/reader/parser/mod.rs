@@ -1,13 +1,15 @@
 //! Contains implementations of FBX parsers.
 
-use std::io::Read;
-use reader::error::{Result, Error, ErrorKind};
-use reader::{FbxEvent, ParserConfig};
-use common::FbxFormatType;
-use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
+use self::binary::BinaryParser;
+use crate::common::FbxFormatType;
+use crate::reader::error::{Error, ErrorKind, Result};
+use crate::reader::{FbxEvent, ParserConfig};
+use log::{debug, warn};
+use std::io::Read;
 
 mod macros;
+
 mod ascii;
 mod binary;
 
@@ -41,7 +43,7 @@ impl Parser {
     /// Constructs a parser.
     pub fn new(config: ParserConfig) -> Self {
         Parser {
-            config: config,
+            config,
             common: CommonState {
                 pos: 0,
                 final_result: None,
@@ -67,7 +69,7 @@ impl Parser {
             // Break only when `ignore_comments` option is disabled or got non-comment event.
             if self.config.ignore_comments {
                 match r {
-                    Ok(FbxEvent::Comment(_)) => {},
+                    Ok(FbxEvent::Comment(_)) => {}
                     r => {
                         result = r;
                         break;
@@ -82,7 +84,7 @@ impl Parser {
         match result {
             Ok(FbxEvent::EndFbx) | Err(_) => {
                 self.common.final_result = Some(result.clone());
-            },
+            }
             _ => {}
         }
         result
@@ -97,7 +99,7 @@ impl Parser {
         let magic_end_byte;
         loop {
             let c = try_read_le_u8!(self.common.pos, reader);
-            if (c == 0) || (c == ('\n' as u8)) {
+            if (c == 0) || (c == (b'\n')) {
                 magic_end_byte = c;
                 break;
             }
@@ -112,9 +114,12 @@ impl Parser {
                 // "unknown but all observed files show these bytes",
                 // see https://code.blender.org/2013/08/fbx-binary-file-format-specification/ .
                 {
-                    let bytes = try_read_exact!(self.common.pos, reader, 2);
+                    let bytes = try_read_exact!(self.common.pos, reader, 2u64);
                     if bytes != vec![0x1A, 0x00] {
-                        warn!("expected [0x1A, 0x00] right after magic, but got {:?}", bytes);
+                        warn!(
+                            "expected [0x1A, 0x00] right after magic, but got {:?}",
+                            bytes
+                        );
                     }
                 }
                 // Read FBX version.
@@ -126,10 +131,10 @@ impl Parser {
                 Err(Error::new(self.common.pos, ErrorKind::InvalidMagic))
             }
         } else {
-            assert_eq!(magic_end_byte, ('\n' as u8));
+            assert_eq!(magic_end_byte, (b'\n'));
             // Maybe ASCII FBX
             let mut buffer;
-            if first_line_bytes[0] != (';' as u8) {
+            if first_line_bytes[0] != (b';') {
                 // The line is not comment, so the parser should remember it to use next time.
                 buffer = try_with_pos!(self.common.pos, String::from_utf8(first_line_bytes));
                 buffer.push('\n');
