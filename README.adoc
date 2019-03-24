@@ -1,5 +1,8 @@
 = fbx_direct, a low-level FBX parser for Rust
 
+**DEPRECATED**.
+Use link:https://github.com/lo48576/fbxcel[`fbxcel`] instead.
+
 fbx_direct is an FBX library for Rust programming language.
 It is heavily inspired by link:https://en.wikipedia.org/wiki/StAX[Java Streaming API for XML (StAX)] and link:https://github.com/netvl/xml-rs[xml-rs].
 
