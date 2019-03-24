@@ -1,9 +1,9 @@
 //! Contains implementations of FBX parsers.
 
 use std::io::Read;
-use reader::error::{Result, Error, ErrorKind};
-use reader::{FbxEvent, ParserConfig};
-use common::FbxFormatType;
+use crate::reader::error::{Result, Error, ErrorKind};
+use crate::reader::{FbxEvent, ParserConfig};
+use crate::common::FbxFormatType;
 use self::binary::BinaryParser;
 use self::ascii::AsciiParser;
 

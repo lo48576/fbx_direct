@@ -1,9 +1,9 @@
 //! Contains FBX emitters.
 
 use std::io::{Write, Seek};
-use writer::error::{Result, Error};
-use writer::{FbxEvent, EmitterConfig};
-use common::FbxFormatType;
+use crate::writer::error::{Result, Error};
+use crate::writer::{FbxEvent, EmitterConfig};
+use crate::common::FbxFormatType;
 use self::binary::BinaryEmitter;
 use self::ascii::AsciiEmitter;
 

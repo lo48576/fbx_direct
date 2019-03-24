@@ -11,8 +11,8 @@ extern crate byteorder;
 #[macro_use]
 extern crate log;
 
-pub use reader::EventReader;
-pub use writer::EventWriter;
+pub use crate::reader::EventReader;
+pub use crate::writer::EventWriter;
 
 pub mod common;
 pub mod reader;

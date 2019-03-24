@@ -1,8 +1,8 @@
 //! Contains implementation of ASCII FBX parser.
 
 use std::io::Read;
-use reader::error::{Result, Error, ErrorKind};
-use reader::FbxEvent;
+use crate::reader::error::{Result, Error, ErrorKind};
+use crate::reader::FbxEvent;
 use super::CommonState;
 
 /// A parser for ASCII FBX.

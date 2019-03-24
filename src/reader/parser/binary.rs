@@ -3,9 +3,9 @@
 extern crate flate2;
 
 use std::io::Read;
-use reader::error::{Result, Error, ErrorKind};
-use reader::FbxEvent;
-use common::OwnedProperty;
+use crate::reader::error::{Result, Error, ErrorKind};
+use crate::reader::FbxEvent;
+use crate::common::OwnedProperty;
 use super::CommonState;
 
 /// A parser for Binary FBX.
@@ -35,7 +35,7 @@ impl BinaryParser {
         }
 
         // Read a node record header.
-        let node_record_header = try!(NodeRecordHeader::read(reader, &mut common.pos, self));
+        let node_record_header = NodeRecordHeader::read(reader, &mut common.pos, self)?;
         if node_record_header.is_null_record() {
             // End of a node.
             return if let Some(expected_pos) = self.end_offset_stack.pop() {
@@ -72,7 +72,7 @@ impl BinaryParser {
         // Read properties.
         let mut properties = Vec::<OwnedProperty>::with_capacity(node_record_header.num_properties as usize);
         for _ in 0..node_record_header.num_properties {
-            let prop = try!(self.read_property(reader, common));
+            let prop = self.read_property(reader, common)?;
             properties.push(prop);
         }
 
@@ -126,8 +126,8 @@ impl BinaryParser {
             },
             // Array types
             'f'|'d'|'l'|'i'|'b' => {
-                let array_header = try!(PropertyArrayHeader::read(reader, &mut common.pos));
-                try!(self.read_property_value_array(reader, common, type_code, &array_header))
+                let array_header = PropertyArrayHeader::read(reader, &mut common.pos)?;
+                self.read_property_value_array(reader, common, type_code, &array_header)?
             },
             // String
             'S' => {
@@ -157,14 +157,14 @@ impl BinaryParser {
         match array_header.encoding {
             // 0; raw
             0 => {
-                let (val, byte_size) = try!(self.read_property_value_array_from_plain_stream(reader, common.pos, type_code, array_header.array_length));
+                let (val, byte_size) = self.read_property_value_array_from_plain_stream(reader, common.pos, type_code, array_header.array_length)?;
                 common.pos += byte_size;
                 Ok(val)
             },
             // 1: zlib compressed data
             1 => {
                 let mut decoded_stream = flate2::read::ZlibDecoder::new(reader.by_ref().take(array_header.compressed_length as u64));
-                let (val, _) = try!(self.read_property_value_array_from_plain_stream(&mut decoded_stream, common.pos, type_code, array_header.array_length));
+                let (val, _) = self.read_property_value_array_from_plain_stream(&mut decoded_stream, common.pos, type_code, array_header.array_length)?;
                 common.pos += array_header.compressed_length as u64;
                 Ok(val)
             },

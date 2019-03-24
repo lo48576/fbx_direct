@@ -1,12 +1,12 @@
 //! Contains implementation of ASCII FBX emitter.
 use std::io::Write;
 use base64;
-use writer::error::{Result, Error};
-use common::Property;
+use crate::writer::error::{Result, Error};
+use crate::common::Property;
 
 fn indent<W: Write>(sink: &mut W, depth: usize) -> Result<()> {
     for _ in 0..depth {
-        try!(sink.write(b"\t"));
+        sink.write(b"\t")?;
     }
     Ok(())
 }
@@ -19,60 +19,60 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
     // TODO: Implement folding of large array.
     macro_rules! generic_vec_print {
         ($vec:ident) => ({
-            try!(sink.write_fmt(format_args!("*{} {{\n", $vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
+            sink.write_fmt(format_args!("*{} {{\n", $vec.len()))?;
+            indent(sink, prop_depth)?;
+            sink.write(b"a: ")?;
             let mut iter = $vec.iter();
             if let Some(&v) = iter.next() {
-                try!(sink.write_fmt(format_args!("{}", v)));
+                sink.write_fmt(format_args!("{}", v))?;
             }
             for &v in iter {
-                try!(sink.write_fmt(format_args!(",{}", v)));
+                sink.write_fmt(format_args!(",{}", v))?;
             }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            sink.write(b"\n")?;
+            indent(sink, prop_depth-1)?;
+            sink.write(b"}")?;
         })
     }
     match *property {
         Property::Bool(false) => {
-            try!(sink.write(b"T"));
+            sink.write(b"T")?;
         },
         Property::Bool(true) => {
-            try!(sink.write(b"Y"));
+            sink.write(b"Y")?;
         },
         Property::I16(v) => {
-            try!(sink.write_fmt(format_args!("{}", v)));
+            sink.write_fmt(format_args!("{}", v))?;
         },
         Property::I32(v) => {
-            try!(sink.write_fmt(format_args!("{}", v)));
+            sink.write_fmt(format_args!("{}", v))?;
         },
         Property::I64(v) => {
-            try!(sink.write_fmt(format_args!("{}", v)));
+            sink.write_fmt(format_args!("{}", v))?;
         },
         Property::F32(v) => {
             // NOTE: Is outputted data accurate enough?
-            try!(sink.write_fmt(format_args!("{}", v)));
+            sink.write_fmt(format_args!("{}", v))?;
         },
         Property::F64(v) => {
             // NOTE: Is outputted data accurate enough?
-            try!(sink.write_fmt(format_args!("{}", v)));
+            sink.write_fmt(format_args!("{}", v))?;
         },
         Property::VecBool(vec) => {
             warn!("ASCII representation of vector of boolean values may be wrong.");
-            try!(sink.write_fmt(format_args!("*{} {{\n", vec.len())));
-            try!(indent(sink, prop_depth));
-            try!(sink.write(b"a: "));
+            sink.write_fmt(format_args!("*{} {{\n", vec.len()))?;
+            indent(sink, prop_depth)?;
+            sink.write(b"a: ")?;
             let mut iter = vec.iter();
             if let Some(&v) = iter.next() {
-                try!(sink.write(if v { b"Y" } else { b"T" }));
+                sink.write(if v { b"Y" } else { b"T" })?;
             }
             for &v in iter {
-                try!(sink.write(if v { b",Y" } else { b",T" }));
+                sink.write(if v { b",Y" } else { b",T" })?;
             }
-            try!(sink.write(b"\n"));
-            try!(indent(sink, prop_depth-1));
-            try!(sink.write(b"}"));
+            sink.write(b"\n")?;
+            indent(sink, prop_depth-1)?;
+            sink.write(b"}")?;
         },
         Property::VecI32(vec) => {
             generic_vec_print!(vec);
@@ -87,29 +87,29 @@ fn print_property<W: Write>(sink: &mut W, property: &Property, prop_depth: usize
             generic_vec_print!(vec);
         },
         Property::String(v) => {
-            try!(sink.write(b"\""));
+            sink.write(b"\"")?;
             for c in v.chars() {
                 match c {
                     '"' => {
-                        try!(sink.write(b"&quot;"));
+                        sink.write(b"&quot;")?;
                     },
                     '\n' => {
-                        try!(sink.write(b"&lf;"));
+                        sink.write(b"&lf;")?;
                     },
                     '\r' => {
-                        try!(sink.write(b"&cr;"));
+                        sink.write(b"&cr;")?;
                     },
                     _ => {
-                        try!(sink.write_fmt(format_args!("{}", c)));
+                        sink.write_fmt(format_args!("{}", c))?;
                     }
                 }
             }
-            try!(sink.write(b"\""));
+            sink.write(b"\"")?;
         },
         Property::Binary(v) => {
             // TODO: Implement folding of long line.
             // base64 conversion.
-            try!(sink.write_fmt(format_args!("\"{}\"", base64::encode(v))));
+            sink.write_fmt(format_args!("\"{}\"", base64::encode(v)))?;
         },
     }
     Ok(())
@@ -138,7 +138,7 @@ impl AsciiEmitter {
             let (major, minor) = (ver / 1000, ver % 1000);
             let (minor, revision) = (minor / 100, minor % 100);
             // Write magic for ASCII FBX.
-            try!(sink.write_fmt(format_args!("; FBX {}.{}.{} project file\n", major, minor, revision)));
+            sink.write_fmt(format_args!("; FBX {}.{}.{} project file\n", major, minor, revision))?;
         }
 
         Ok(())
@@ -153,22 +153,22 @@ impl AsciiEmitter {
             // Print brace for *parent node*, if the current node is the first child.
             // (i.e. `child_exist` of parent is `false`.)
             if !child_exist {
-                try!(sink.write(b" {\n"));
+                sink.write(b" {\n")?;
             }
             self.prop_child_existence.push((prop_exist, true));
         }
-        try!(indent(sink, self.prop_child_existence.len()));
+        indent(sink, self.prop_child_existence.len())?;
         self.prop_child_existence.push((!properties.is_empty(), false));
-        try!(sink.write_fmt(format_args!("{}: ", name)));
+        sink.write_fmt(format_args!("{}: ", name))?;
 
         let prop_depth = self.prop_child_existence.len();
         let mut prop_iter = properties.iter();
         if let Some(prop) = prop_iter.next() {
-            try!(print_property(sink, prop, prop_depth));
+            print_property(sink, prop, prop_depth)?;
         }
         for prop in prop_iter {
-            try!(sink.write(b", "));
-            try!(print_property(sink, prop, prop_depth));
+            sink.write(b", ")?;
+            print_property(sink, prop, prop_depth)?;
         }
 
         Ok(())
@@ -178,12 +178,12 @@ impl AsciiEmitter {
         let (prop_exist, child_exist) = self.prop_child_existence.pop().unwrap();
         if !prop_exist || child_exist {
             if !prop_exist && !child_exist {
-                try!(sink.write(b" {\n"));
+                sink.write(b" {\n")?;
             }
-            try!(indent(sink, self.prop_child_existence.len()));
-            try!(sink.write(b"}\n"));
+            indent(sink, self.prop_child_existence.len())?;
+            sink.write(b"}\n")?;
         } else {
-            try!(sink.write(b"\n"));
+            sink.write(b"\n")?;
         }
 
         Ok(())
@@ -191,9 +191,9 @@ impl AsciiEmitter {
 
     pub fn emit_comment<W: Write>(&mut self, sink: &mut W, comment: &str) -> Result<()> {
         for line in comment.lines() {
-            try!(indent(sink, self.prop_child_existence.len()));
-            try!(sink.write(line.as_bytes()));
-            try!(sink.write(b"\n"));
+            indent(sink, self.prop_child_existence.len())?;
+            sink.write(line.as_bytes())?;
+            sink.write(b"\n")?;
         }
 
         Ok(())

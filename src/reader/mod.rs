@@ -4,7 +4,7 @@ use std::io::Read;
 use self::error::Result;
 
 pub use self::error::{Error, ErrorKind};
-use common::{FbxFormatType, OwnedProperty};
+use crate::common::{FbxFormatType, OwnedProperty};
 
 mod error;
 mod parser;
@@ -38,8 +38,8 @@ pub enum FbxEvent {
 }
 
 impl FbxEvent {
-    pub fn as_writer_event<'a>(&'a self) -> ::writer::FbxEvent {
-        use writer::FbxEvent as WriterEvent;
+    pub fn as_writer_event<'a>(&'a self) -> crate::writer::FbxEvent {
+        use crate::writer::FbxEvent as WriterEvent;
         match *self {
             FbxEvent::StartFbx(ref format) => WriterEvent::StartFbx(format.clone()),
             FbxEvent::EndFbx => WriterEvent::EndFbx,
