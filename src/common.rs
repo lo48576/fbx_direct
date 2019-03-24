@@ -46,7 +46,7 @@ pub enum OwnedProperty {
 }
 
 impl OwnedProperty {
-    pub fn borrow(&self) -> Property {
+    pub fn borrow(&self) -> Property<'_> {
         match *self {
             OwnedProperty::Bool(v) => Property::Bool(v),
             OwnedProperty::I16(v) => Property::I16(v),
@@ -112,7 +112,7 @@ impl OwnedProperty {
     pub fn get_i32(&self) -> Option<i32> {
         match *self {
             OwnedProperty::Bool(v) => Some(if v { 1 } else { 0 }),
-            OwnedProperty::I16(v) => Some(v as i32),
+            OwnedProperty::I16(v) => Some(i32::from(v)),
             OwnedProperty::I32(v) => Some(v),
             _ => None,
         }
@@ -124,7 +124,7 @@ impl OwnedProperty {
     pub fn into_i32(self) -> Result<i32, Self> {
         match self {
             OwnedProperty::Bool(v) => Ok(if v { 1 } else { 0 }),
-            OwnedProperty::I16(v) => Ok(v as i32),
+            OwnedProperty::I16(v) => Ok(i32::from(v)),
             OwnedProperty::I32(v) => Ok(v),
             v => Err(v),
         }
@@ -136,8 +136,8 @@ impl OwnedProperty {
     pub fn get_i64(&self) -> Option<i64> {
         match *self {
             OwnedProperty::Bool(v) => Some(if v { 1 } else { 0 }),
-            OwnedProperty::I16(v) => Some(v as i64),
-            OwnedProperty::I32(v) => Some(v as i64),
+            OwnedProperty::I16(v) => Some(i64::from(v)),
+            OwnedProperty::I32(v) => Some(i64::from(v)),
             OwnedProperty::I64(v) => Some(v),
             _ => None,
         }
@@ -149,8 +149,8 @@ impl OwnedProperty {
     pub fn into_i64(self) -> Result<i64, Self> {
         match self {
             OwnedProperty::Bool(v) => Ok(if v { 1 } else { 0 }),
-            OwnedProperty::I16(v) => Ok(v as i64),
-            OwnedProperty::I32(v) => Ok(v as i64),
+            OwnedProperty::I16(v) => Ok(i64::from(v)),
+            OwnedProperty::I32(v) => Ok(i64::from(v)),
             OwnedProperty::I64(v) => Ok(v),
             v => Err(v),
         }
@@ -183,7 +183,7 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_f64(&self) -> Option<f64> {
         match *self {
-            OwnedProperty::F32(v) => Some(v as f64),
+            OwnedProperty::F32(v) => Some(f64::from(v)),
             OwnedProperty::F64(v) => Some(v),
             _ => None,
         }
@@ -194,7 +194,7 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn into_f64(self) -> Result<f64, Self> {
         match self {
-            OwnedProperty::F32(v) => Ok(v as f64),
+            OwnedProperty::F32(v) => Ok(f64::from(v)),
             OwnedProperty::F64(v) => Ok(v),
             v => Err(v),
         }
@@ -223,9 +223,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i32(&self) -> Option<Cow<[i32]>> {
+    pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
-            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             OwnedProperty::VecI32(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
@@ -245,10 +247,14 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i64(&self) -> Option<Cow<[i64]>> {
+    pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
-            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
-            OwnedProperty::VecI32(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
+            OwnedProperty::VecBool(ref v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
+            OwnedProperty::VecI32(ref v) => {
+                Some(Cow::Owned(v.iter().map(|&v| i64::from(v)).collect()))
+            }
             OwnedProperty::VecI64(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
@@ -260,7 +266,7 @@ impl OwnedProperty {
     pub fn into_vec_i64(self) -> Result<Vec<i64>, Self> {
         match self {
             OwnedProperty::VecBool(v) => Ok(v.into_iter().map(|v| if v { 1 } else { 0 }).collect()),
-            OwnedProperty::VecI32(v) => Ok(v.into_iter().map(|v| v as i64).collect()),
+            OwnedProperty::VecI32(v) => Ok(v.into_iter().map(i64::from).collect()),
             OwnedProperty::VecI64(v) => Ok(v),
             v => Err(v),
         }
@@ -269,7 +275,7 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f32(&self) -> Option<Cow<[f32]>> {
+    pub fn get_vec_f32(&self) -> Option<Cow<'_, [f32]>> {
         match *self {
             OwnedProperty::VecF32(ref v) => Some(Cow::Borrowed(&v)),
             OwnedProperty::VecF64(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as f32).collect())),
@@ -291,9 +297,11 @@ impl OwnedProperty {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f64(&self) -> Option<Cow<[f64]>> {
+    pub fn get_vec_f64(&self) -> Option<Cow<'_, [f64]>> {
         match *self {
-            OwnedProperty::VecF32(ref v) => Some(Cow::Owned(v.iter().map(|&v| v as f64).collect())),
+            OwnedProperty::VecF32(ref v) => {
+                Some(Cow::Owned(v.iter().map(|&v| f64::from(v)).collect()))
+            }
             OwnedProperty::VecF64(ref v) => Some(Cow::Borrowed(&v)),
             _ => None,
         }
@@ -304,7 +312,7 @@ impl OwnedProperty {
     /// Tries to convert property value into specific type without data loss.
     pub fn into_vec_f64(self) -> Result<Vec<f64>, Self> {
         match self {
-            OwnedProperty::VecF32(v) => Ok(v.into_iter().map(|v| v as f64).collect()),
+            OwnedProperty::VecF32(v) => Ok(v.into_iter().map(f64::from).collect()),
             OwnedProperty::VecF64(v) => Ok(v),
             v => Err(v),
         }
@@ -327,7 +335,7 @@ impl OwnedProperty {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<'_, [u8]>> {
         match *self {
             OwnedProperty::String(ref v) => {
                 // In ASCII FBX, binary value is represented as base64-encoded string.
@@ -336,7 +344,7 @@ impl OwnedProperty {
                 } else {
                     None
                 }
-            },
+            }
             OwnedProperty::Binary(ref v) => Some(Cow::Borrowed(&v[..])),
             _ => None,
         }
@@ -348,11 +356,11 @@ impl OwnedProperty {
             OwnedProperty::String(v) => {
                 // In ASCII FBX, binary value is represented as base64-encoded string.
                 if from_string {
-                    base64::decode(&v).or(Err(OwnedProperty::String(v)))
+                    base64::decode(&v).or_else(|_| Err(OwnedProperty::String(v)))
                 } else {
                     Err(OwnedProperty::String(v))
                 }
-            },
+            }
             OwnedProperty::Binary(v) => Ok(v),
             v => Err(v),
         }
@@ -420,7 +428,7 @@ impl<'a> Property<'a> {
     pub fn get_i32(&self) -> Option<i32> {
         match *self {
             Property::Bool(v) => Some(if v { 1 } else { 0 }),
-            Property::I16(v) => Some(v as i32),
+            Property::I16(v) => Some(i32::from(v)),
             Property::I32(v) => Some(v),
             _ => None,
         }
@@ -432,8 +440,8 @@ impl<'a> Property<'a> {
     pub fn get_i64(&self) -> Option<i64> {
         match *self {
             Property::Bool(v) => Some(if v { 1 } else { 0 }),
-            Property::I16(v) => Some(v as i64),
-            Property::I32(v) => Some(v as i64),
+            Property::I16(v) => Some(i64::from(v)),
+            Property::I32(v) => Some(i64::from(v)),
             Property::I64(v) => Some(v),
             _ => None,
         }
@@ -455,7 +463,7 @@ impl<'a> Property<'a> {
     /// Tries to convert property value into specific type without data loss.
     pub fn get_f64(&self) -> Option<f64> {
         match *self {
-            Property::F32(v) => Some(v as f64),
+            Property::F32(v) => Some(f64::from(v)),
             Property::F64(v) => Some(v),
             _ => None,
         }
@@ -474,9 +482,11 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i32(&self) -> Option<Cow<[i32]>> {
+    pub fn get_vec_i32(&self) -> Option<Cow<'_, [i32]>> {
         match *self {
-            Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
+            Property::VecBool(v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
             Property::VecI32(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -485,10 +495,12 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_i64(&self) -> Option<Cow<[i64]>> {
+    pub fn get_vec_i64(&self) -> Option<Cow<'_, [i64]>> {
         match *self {
-            Property::VecBool(v) => Some(Cow::Owned(v.iter().map(|&v| if v { 1 } else { 0 }).collect())),
-            Property::VecI32(v) => Some(Cow::Owned(v.iter().map(|&v| v as i64).collect())),
+            Property::VecBool(v) => Some(Cow::Owned(
+                v.iter().map(|&v| if v { 1 } else { 0 }).collect(),
+            )),
+            Property::VecI32(v) => Some(Cow::Owned(v.iter().map(|&v| i64::from(v)).collect())),
             Property::VecI64(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -497,7 +509,7 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f32(&self) -> Option<Cow<[f32]>> {
+    pub fn get_vec_f32(&self) -> Option<Cow<'_, [f32]>> {
         match *self {
             Property::VecF32(v) => Some(Cow::Borrowed(v)),
             Property::VecF64(v) => Some(Cow::Owned(v.iter().map(|&v| v as f32).collect())),
@@ -508,9 +520,9 @@ impl<'a> Property<'a> {
     /// Safe conversion.
     ///
     /// Tries to convert property value into specific type without data loss.
-    pub fn get_vec_f64(&self) -> Option<Cow<[f64]>> {
+    pub fn get_vec_f64(&self) -> Option<Cow<'_, [f64]>> {
         match *self {
-            Property::VecF32(v) => Some(Cow::Owned(v.iter().map(|&v| v as f64).collect())),
+            Property::VecF32(v) => Some(Cow::Owned(v.iter().map(|&v| f64::from(v)).collect())),
             Property::VecF64(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -525,7 +537,7 @@ impl<'a> Property<'a> {
     }
 
     /// Get binary value if possible.
-    pub fn get_binary(&self, from_string: bool) -> Option<Cow<[u8]>> {
+    pub fn get_binary(&self, from_string: bool) -> Option<Cow<'_, [u8]>> {
         match *self {
             Property::String(v) => {
                 // In ASCII FBX, binary value is represented as base64-encoded string.
@@ -534,7 +546,7 @@ impl<'a> Property<'a> {
                 } else {
                     None
                 }
-            },
+            }
             Property::Binary(v) => Some(Cow::Borrowed(v)),
             _ => None,
         }
@@ -543,12 +555,12 @@ impl<'a> Property<'a> {
 
 #[cfg(test)]
 mod property_tests {
-    use super::{OwnedProperty};
+    use super::OwnedProperty;
 
     #[test]
     fn owned_vec_i32_to_vec_i64() {
         let vec_i32: Vec<i32> = vec![1, -1, 2, -3, 5, -8, 13, -21, 34];
-        let vec_i64 = vec_i32.iter().map(|&v| v as i64).collect::<Vec<_>>();
+        let vec_i64 = vec_i32.iter().map(|&v| i64::from(v)).collect::<Vec<_>>();
         let src = OwnedProperty::VecI32(vec_i32.clone());
         let dst = src.get_vec_i64().unwrap().into_owned();
         let dst2 = src.into_vec_i64().unwrap();
@@ -559,7 +571,7 @@ mod property_tests {
     #[test]
     fn borrowed_vec_i32_to_vec_i64() {
         let vec_i32: Vec<i32> = vec![1, -1, 2, -3, 5, -8, 13, -21, 34];
-        let vec_i64 = vec_i32.iter().map(|&v| v as i64).collect::<Vec<_>>();
+        let vec_i64 = vec_i32.iter().map(|&v| i64::from(v)).collect::<Vec<_>>();
         let src_owned = OwnedProperty::VecI32(vec_i32.clone());
         let src = src_owned.borrow();
         let dst = src.get_vec_i64().unwrap().into_owned();

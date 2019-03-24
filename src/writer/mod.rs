@@ -1,8 +1,8 @@
 //! Contains interface for an events-based FBX emitter.
 
-use std::io::{Write, Seek};
+use std::io::{Seek, Write};
 
-pub use self::error::{Result, Error};
+pub use self::error::{Error, Result};
 pub use self::events::FbxEvent;
 
 mod emitter;
@@ -19,7 +19,7 @@ impl<W: Write + Seek> EventWriter<W> {
     /// Creates a new writer.
     pub fn new(sink: W) -> Self {
         EventWriter {
-            sink: sink,
+            sink,
             emitter: emitter::Emitter::new(EmitterConfig::new()),
         }
     }
@@ -27,14 +27,15 @@ impl<W: Write + Seek> EventWriter<W> {
     /// Creates a new emitter with provided configuration.
     pub fn new_with_config(sink: W, config: EmitterConfig) -> Self {
         EventWriter {
-            sink: sink,
+            sink,
             emitter: emitter::Emitter::new(config),
         }
     }
 
     /// Writes the next piece of FBX fragment according to the provided event.
     pub fn write<'a, E>(&mut self, event: E) -> Result<()>
-        where E: Into<FbxEvent<'a>>
+    where
+        E: Into<FbxEvent<'a>>,
     {
         self.emitter.write(&mut self.sink, event.into())
     }
